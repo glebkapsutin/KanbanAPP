@@ -1,0 +1,50 @@
+/* TaskList.css */
+
+/* Основной контейнер для списка задач */
+.task-list {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Заголовок списка задач */
+  .task-list h1 {
+    text-align: center;
+    color: #333;
+  }
+  
+  /* Список задач */
+  .task-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  /* Каждый элемент задачи */
+  .task-list li {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  /* Заголовок задачи */
+  .task-list h2 {
+    margin: 0;
+    color: #007BFF;
+  }
+  
+  /* Описание задачи */
+  .task-list p {
+    margin: 5px 0 0;
+    color: #666;
+  }
+  .task-list input{
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+  }
+  

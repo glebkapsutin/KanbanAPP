@@ -1,0 +1,34 @@
+using System.IdentityModel;
+using Microsoft.AspNetCore.Identity;
+namespace KanbanApp.Models
+{
+
+
+    public class TaskItem
+    {
+        public int? Id { get; set; }
+        public Task_Status? Status { get; set; }
+        public string? Description { get; set; }
+
+        public string? TaskName { get; set; }
+
+        public DateTime? CreatedTask { get; set; }
+
+        public int? ProjectId { get; set; } // Связь с проектом
+        public ProjectItem? Project { get; set; } // Навигационное свойство
+        public int? UserId { get; set; } // Связь с пользователем
+        public UserItem? User { get; set; } // Навигационное свойство
+
+        public DateTime? Deadline { get; set; }
+
+        
+
+    }
+    public enum Task_Status
+    {
+        To_Do,
+        To_Progress,
+        Done
+
+    }
+}
