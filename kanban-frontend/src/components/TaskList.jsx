@@ -1,19 +1,21 @@
 import React from 'react';
-import '../styles/Task.css'
+import '../styles/Task.css';
 
-const TaskList = ({tasks}) => {
-
-
+const TaskList = ({ tasks }) => {
   return (
     <div>
       <h1>Список задач</h1>
       <ul>
-        {tasks.map((task,index) => (
-          <li key={index}>
-            <h2>{task.TaskName}</h2>
-            <h3>{task.Description}</h3>
-          </li>
-        ))}
+        {tasks && tasks.length > 0 ? (
+          tasks.map((task) => (
+            <li key={task.id}>
+              <h2>{task.taskName}</h2>
+              <h3>{task.description}</h3>
+            </li>
+          ))
+        ) : (
+          <p>Задач пока нет</p>
+        )}
       </ul>
     </div>
   );

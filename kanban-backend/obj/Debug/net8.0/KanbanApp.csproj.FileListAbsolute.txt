@@ -346,3 +346,8 @@
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/obj/Debug/net8.0/KanbanApp.pdb
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/obj/Debug/net8.0/KanbanApp.genruntimeconfig.cache
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/obj/Debug/net8.0/ref/KanbanApp.dll
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/publish/web.config
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/publish/appsettings.Development.json
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/publish/appsettings.json
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/publish/KanbanApp.deps.json
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/publish/KanbanApp.runtimeconfig.json

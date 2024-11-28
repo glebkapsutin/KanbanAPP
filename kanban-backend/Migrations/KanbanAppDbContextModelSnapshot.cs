@@ -68,6 +68,9 @@ namespace KanbanApp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
                     b.Property<int?>("UserItemId")
                         .HasColumnType("integer");
 

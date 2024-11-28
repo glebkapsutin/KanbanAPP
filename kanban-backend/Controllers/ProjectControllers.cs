@@ -16,18 +16,32 @@ namespace KanbanApp.Controllers
         {
             _kanbanAppDbContext = context;
         }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProjectItem>>> GetProjects()
         {
-            var project = await _kanbanAppDbContext.ProjectItems.ToListAsync();
-            return Ok(project);
+            try
+            {
+                var projects = await _kanbanAppDbContext.ProjectItems
+                    .ToListAsync();
+                return Ok(projects);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                Console.WriteLine($"Ошибка: {ex.Message} | StackTrace: {ex.StackTrace}");
+                return StatusCode(500, "Произошла ошибка на сервере.");
+            }
         }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<ProjectItem>>> GetProjectId(int id)
         {
             var project = await _kanbanAppDbContext.ProjectItems
-            .Include(p => p.Id)
-            .FirstOrDefaultAsync(p=>p.Id == id);
+                .Include(p => p.Tasks)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (project == null)
             {
                 return NotFound();
@@ -42,11 +56,11 @@ namespace KanbanApp.Controllers
                 return BadRequest("Dont have Item");
 
             }
-            var project = await _kanbanAppDbContext.ProjectItems.FindAsync(ProjectItem.Id);
-            if (project == null)
+            if (string.IsNullOrWhiteSpace(ProjectItem.Name))
             {
-                return BadRequest("project not found");
+                return BadRequest("Project name is required.");
             }
+            
             if (ProjectItem.Tasks!= null  && ProjectItem.Tasks.Any())
             {
                 foreach(var task in ProjectItem.Tasks)

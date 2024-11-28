@@ -1,0 +1,39 @@
+# Stage 1: Build the application
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+# Устанавливаем рабочую директорию внутри контейнера
+WORKDIR /app
+
+# Копируем файлы проекта из текущей директории в контейнер
+COPY . .
+
+# Восстанавливаем зависимости
+RUN dotnet restore
+
+# Публикуем проект в папку /app/publish
+RUN dotnet publish -c Release -o /app/publish
+
+# Stage 2: Запуск приложения
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем опубликованные файлы из предыдущего шага
+COPY --from=build /app/publish .
+
+RUN apt-get update && apt-get install -y netcat-openbsd
+
+
+# Копируем скрипт wait-for-it.sh в контейнер
+COPY ./scripts/wait-for-it.sh /usr/local/bin/wait-for-it.sh
+
+# Даем разрешение на выполнение скрипта
+RUN chmod +x /usr/local/bin/wait-for-it.sh
+
+# Открываем порт для приложения
+EXPOSE 5291
+
+# Указываем команду для старта приложения, используя wait-for-it.sh
+CMD ["wait-for-it.sh", "kanban-db", "5432", "--", "dotnet", "KanbanApp.dll"]
+

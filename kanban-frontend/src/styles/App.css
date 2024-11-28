@@ -40,3 +40,23 @@
 .read-the-docs {
   color: #888;
 }
+/* Это для всей страницы, чтобы расположить форму в правом верхнем углу */
+.app-container {
+  position: relative;
+  min-height: 100vh; /* Делаем контейнер высотой на всю страницу */
+}
+
+.register-form {
+  position: absolute;
+  top: 20px; /* Расстояние от верхней границы */
+  right: 20px; /* Расстояние от правой границы */
+  background-color: white; /* Для выделения формы */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: none; /* Скрыть по умолчанию */
+}
+
+.register-form.visible {
+  display: block; /* Показывать форму, когда она активна */
+}

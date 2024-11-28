@@ -1,4 +1,5 @@
 using System.IdentityModel;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 namespace KanbanApp.Models
 {
@@ -14,7 +15,8 @@ namespace KanbanApp.Models
 
         public DateTime? CreatedTask { get; set; }
 
-        public int? ProjectId { get; set; } // Связь с проектом
+        public int ProjectId { get; set; } // Связь с проектом
+        [JsonIgnore]
         public ProjectItem? Project { get; set; } // Навигационное свойство
         public int? UserId { get; set; } // Связь с пользователем
         public UserItem? User { get; set; } // Навигационное свойство

@@ -38,24 +38,17 @@ namespace KanbanApp.Controllers
         [HttpPost]
         public async Task<ActionResult<TaskItem>> PostTask(TaskItem taskItem)
         {
-            if (taskItem == null)
+           if (taskItem.ProjectId == null)
             {
-                return BadRequest("Don't have Item");
+                return BadRequest("ProjectId is required.");
             }
-            var user = await _kanbanAppDbContext.UserItems.FindAsync(taskItem.UserId);
-            if (user == null)
-            {
-                return BadRequest("Don't  have user");
-            }
+
             var project = await _kanbanAppDbContext.ProjectItems.FindAsync(taskItem.ProjectId);
             if (project == null)
             {
-                return BadRequest("Don't  have project");
+                return BadRequest($"Project with ID {taskItem.ProjectId} does not exist.");
             }
-            if (!IsTaskOwnedByCurrentUser(taskItem))
-            {
-                return Forbid("You cannot modify tasks that don't belong to you.");
-            }
+
 
             if (taskItem.Deadline.HasValue) // Проверяем, установлен ли дедлайн
             {

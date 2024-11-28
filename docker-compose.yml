@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  kanban-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: kanbanapp_db
+      POSTGRES_USER: glebkapustin
+      POSTGRES_PASSWORD: 074123
+    ports:
+      - "5432:5432"
+    networks:
+      - kanban-net
+
+  backend:
+    build:
+      context: ./kanban-backend
+    ports:
+      - "5291:5291"
+    environment:
+      - DB_HOST=kanban-db
+      - DB_PORT=5432
+      - DB_USER=glebkapustin
+      - DB_PASSWORD=074123
+      - DB_NAME=kanbanapp_db
+    networks:
+      - kanban-net
+
+  frontend:
+    build:
+      context: ./kanban-frontend
+    ports:
+      - "5173:80"
+    networks:
+      - kanban-net
+
+networks:
+  kanban-net:
+    driver: bridge
