@@ -1,62 +1,55 @@
-#root {
-  max-width: 1280px;
+.app-container {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Две колонки */
+  gap: 2rem; /* Расстояние между колонками */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--primary-color);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  color: var(--button-text-color);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.task-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+@media (max-width: 768px) 
+{
+    .register-form {
+      background: var(--card-background);
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem; /* Разделение между элементами */
+      align-items: center;
+      justify-content: center;
+      
+    }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
 
-.card {
-  padding: 2em;
+button {
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+  color: var(--button-text-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
-
-.read-the-docs {
-  color: #888;
-}
-/* Это для всей страницы, чтобы расположить форму в правом верхнем углу */
-.app-container {
-  position: relative;
-  min-height: 100vh; /* Делаем контейнер высотой на всю страницу */
-}
-
-.register-form {
-  position: absolute;
-  top: 20px; /* Расстояние от верхней границы */
-  right: 20px; /* Расстояние от правой границы */
-  background-color: white; /* Для выделения формы */
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: none; /* Скрыть по умолчанию */
-}
-
-.register-form.visible {
-  display: block; /* Показывать форму, когда она активна */
+button:hover {
+  background: var(--button-hover);
+  transform: scale(1.05);
 }

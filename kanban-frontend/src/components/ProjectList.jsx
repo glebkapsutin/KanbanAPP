@@ -2,8 +2,10 @@ import React from 'react';
 
 const ProjectList = ({ projects, onSelectProject, selectedProject }) => {
   return (
-    <div>
-      <h2>Список проектов</h2>
+    <div className='wrapper'>
+    <div className='card'>
+      
+      <h1>Список проектов</h1>
       <ul>
         {projects.map((project) => (
           <li
@@ -14,10 +16,13 @@ const ProjectList = ({ projects, onSelectProject, selectedProject }) => {
             }}
             onClick={() => onSelectProject(project.id)} // Выбор проекта
           >
-            {project.name}
+            
+            <h2>{project.name}</h2>
+            <h3>{project.description}</h3>
           </li>
         ))}
       </ul>
+      </div>
     </div>
   );
 };

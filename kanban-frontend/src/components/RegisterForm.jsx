@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import '../styles/App.css'
 function RegisterForm() {
   const [formData, setFormData] = useState({
     email: '',
@@ -42,8 +42,9 @@ function RegisterForm() {
   };
 
   return (
-    <div>
-      <h2>Регистрация</h2>
+    <div className="register-form">
+      <center>
+
       <form onSubmit={handleSubmit}>
         <div>
           <label>Email:</label>
@@ -107,6 +108,7 @@ function RegisterForm() {
         </div>
         <button type="submit">Зарегистрироваться</button>
       </form>
+      </center>
     </div>
   );
 }

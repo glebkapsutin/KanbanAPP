@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/Task.css';
 
+
 const TaskForm = ({ onAddTask, selectedProject }) => {
   const [TaskName, SetTaskName] = useState('');
   const [Description, SetDescription] = useState('');
@@ -31,21 +32,25 @@ const TaskForm = ({ onAddTask, selectedProject }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Заголовок задачи"
-        value={TaskName}
-        onChange={(e) => SetTaskName(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Описание задачи"
-        value={Description }
-        onChange={(e) => SetDescription(e.target.value)}
-      />
-      <button type="submit">Добавить задачу</button>
-    </form>
+    <div >
+      <center>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Заголовок задачи"
+          value={TaskName}
+          onChange={(e) => SetTaskName(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Описание задачи"
+          value={Description }
+          onChange={(e) => SetDescription(e.target.value)}
+        />
+        <button type="submit">Добавить задачу</button>
+      </form>
+      </center>
+    </div>
   );
 };
 

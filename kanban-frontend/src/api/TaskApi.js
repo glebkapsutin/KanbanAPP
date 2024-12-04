@@ -37,4 +37,14 @@ export const addTask = async (newTask, tasks, setTasks) => {
       console.error("Ошибка сети:", error);
   }
 };
+export const deleteTask = async(tasks,setTasks) =>{
+  const response = await fetch(`${BaseUrl}/TaskControllers`, {
+    method: 'DELETE',
+    headers: {
+      "Content-Type": "application/json"
+    },
+
+  });
+
+}
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import '../styles/Task.css';
+import '../styles/Task.css'
 
 const TaskList = ({ tasks }) => {
   return (
-    <div>
+    <div className='task-list'>
       <h1>Список задач</h1>
       <ul>
         {tasks && tasks.length > 0 ? (

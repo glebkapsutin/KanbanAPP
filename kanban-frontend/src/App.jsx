@@ -6,6 +6,7 @@ import RegisterForm from './components/RegisterForm';
 import { fetchTasks, addTask } from './api/TaskApi';
 import Projects from './components/Projects'
 
+
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -31,7 +32,8 @@ const App = () => {
 
   return (
     <div>
-      <h1>KanbanApp</h1>
+
+      <h1>Kanban</h1>
 
       {/* Кнопка для отображения/скрытия формы регистрации */}
       <button
@@ -55,7 +57,7 @@ const App = () => {
 
       {selectedProject && (
         <div>
-          <h2>Проект: {selectedProject.name}</h2>
+          <h2>{selectedProject.name}</h2>
           <TaskForm 
            onAddTask={handleAddTask}
            selectedProject={selectedProject} />

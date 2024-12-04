@@ -16,13 +16,16 @@ const Projects = ({ onSelectProject, selectedProject }) => {
         await addProject(newProject,projects,setProjects)
     };
     return(
-        <div>
-            <ProjectForm onAddProject={handleAddProject}/>
-            <ProjectList
-                projects={projects}
-                onSelectProject={onSelectProject} 
-                selectedProject={selectedProject}
-            />
+        <div >
+            <center>
+                <ProjectForm onAddProject={handleAddProject}/>
+                <ProjectList
+                    projects={projects}
+                    onSelectProject={onSelectProject} 
+                    selectedProject={selectedProject}
+                />
+            </center>
+            
         </div>
     );
 };
