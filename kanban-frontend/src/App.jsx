@@ -4,7 +4,8 @@ import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import RegisterForm from './components/RegisterForm';
 import { fetchTasks, addTask } from './api/TaskApi';
-import Projects from './components/Projects'
+import Projects from './components/Projects';
+
 
 
 const App = () => {
@@ -33,8 +34,8 @@ const App = () => {
   return (
     <div>
 
-      <h1>Kanban</h1>
-
+      <h1 className='title'>Kanban</h1>
+      
       {/* Кнопка для отображения/скрытия формы регистрации */}
       <button
         style={{
@@ -54,7 +55,7 @@ const App = () => {
         onSelectProject={setSelectedProject}
         selectedProject={selectedProject}
       />
-
+   
       {selectedProject && (
         <div>
           <h2>{selectedProject.name}</h2>
