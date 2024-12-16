@@ -1,69 +1,87 @@
 import React, { useState, useEffect } from 'react';
 import './styles/App.css';
-import TaskList from './components/TaskList';
-import TaskForm from './components/TaskForm';
-import RegisterForm from './components/RegisterForm';
+import MainContent from './scripts/MainContent';
 import { fetchTasks, addTask } from './api/TaskApi';
-import Projects from './components/Projects';
-
-
+import Footer from './scripts/Footer';
+import Header from './scripts/Header';
+import RegistrationWindow from './components/RegistrationWindow';
+import LoginWindow from './components/LoginWindow';
+import { fetchUsers } from './api/UserApi';
+import { fetchProjects } from './api/ProjectApi';
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [isRegisterFormVisible, setIsRegisterFormVisible] = useState(false); // Состояние для показа формы
+  const [isRegisterFormVisible, setIsRegisterFormVisible] = useState(false);
+  const [isLoginFormVisible, setIsLoginFormVisible] = useState(false);
+  const [user, setUser] = useState(null);
 
   const handleAddTask = (newTask) => {
     if (!selectedProject) {
       alert('Пожалуйста, выберите проект перед добавлением задачи!');
       return;
     }
-  
     newTask.projectId = selectedProject;
-    console.log('Добавляем задачу с данными:', newTask); // Убедитесь, что ID проекта существует
+    console.log('Добавляем задачу с данными:', newTask);
     addTask(newTask, tasks, setTasks);
+  };
+
+  useEffect(() => {
+    if (user && selectedProject) {
+      
+      fetchTasks(setTasks, selectedProject);
+
+    }
+  }, [user, selectedProject]);
+
+  // Функция для успешного входа и загрузки данных пользователя
+  const handleLoginSuccess = async (userData) => {
+    console.log('Полученные данные пользователя после входа:', userData); // Отладочный вывод
+  
+    try {
+      const userProfile = await fetchUsers(userData.id);
+      console.log('Загруженный профиль пользователя:', userProfile); // Проверка полученного профиля
+  
+      if (userProfile) {
+        setUser(userProfile); // Устанавливаем пользователя в состояние
+      } else {
+        setUser(userData); // Если профиль не загружен, используем базовые данные
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке профиля пользователя:', error);
+      setUser(userData);
+    }
+  
+    setIsLoginFormVisible(false); // Закрываем окно входа
   };
   
 
-
-
-  useEffect(() => {
-    fetchTasks(setTasks);
-  }, []);
-
   return (
-    <div>
-
-      <h1 className='title'>Kanban</h1>
-      
-      {/* Кнопка для отображения/скрытия формы регистрации */}
-      <button
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-        }}
-        onClick={() => setIsRegisterFormVisible(!isRegisterFormVisible)} // Переключаем видимость формы
-      >
-        Зарегистрироваться
-      </button>
-
-      {/* Если форма регистрации видна, показываем ее */}
-      {isRegisterFormVisible && <RegisterForm />}
-
-      <Projects
-        onSelectProject={setSelectedProject}
-        selectedProject={selectedProject}
+    <div className={isRegisterFormVisible || isLoginFormVisible ? 'blurred-background' : ''}>
+      <Header
+        onRegisterClick={() => setIsRegisterFormVisible(true)}
+        onLoginClick={() => setIsLoginFormVisible(true)}
+        user={user}
       />
-   
-      {selectedProject && (
-        <div>
-          <h2>{selectedProject.name}</h2>
-          <TaskForm 
-           onAddTask={handleAddTask}
-           selectedProject={selectedProject} />
-          <TaskList tasks={tasks.filter((task) => task.projectId === selectedProject)} />
-        </div>
+      <MainContent
+        tasks={tasks}
+        selectedProject={selectedProject}
+        setSelectedProject={setSelectedProject}
+        handleAddTask={handleAddTask}
+      />
+      <Footer />
+
+      {/* Окно регистрации */}
+      {isRegisterFormVisible && (
+        <RegistrationWindow onClose={() => setIsRegisterFormVisible(false)} />
+      )}
+
+      {/* Окно входа */}
+      {isLoginFormVisible && (
+        <LoginWindow
+          onClose={() => setIsLoginFormVisible(false)}
+          onLoginSuccess={handleLoginSuccess}
+        />
       )}
     </div>
   );

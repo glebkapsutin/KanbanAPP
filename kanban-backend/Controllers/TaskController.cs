@@ -10,11 +10,11 @@ namespace KanbanApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TaskControllers : ControllerBase
+    public class TaskController : ControllerBase
     {
         private readonly KanbanAppDbContext _kanbanAppDbContext;
 
-        public TaskControllers(KanbanAppDbContext context)
+        public TaskController(KanbanAppDbContext context)
         {
             _kanbanAppDbContext = context;
         }

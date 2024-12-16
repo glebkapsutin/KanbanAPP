@@ -8,32 +8,32 @@ namespace KanbanApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersControllers : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly KanbanAppDbContext _kanbanAppDbContext;
 
-        public UsersControllers(KanbanAppDbContext context)
+        public UsersController(KanbanAppDbContext context)
         {
             _kanbanAppDbContext = context;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserItem>>> GetUsers()
         {
-            var task = await _kanbanAppDbContext.ProjectItems.ToListAsync();
-            return Ok(task);
+            var user = await _kanbanAppDbContext.UserItems.ToListAsync();
+            return Ok(user);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<ProjectItem>>> GetUserId(int id)
+        public async Task<ActionResult<UserItem>> GetUserId(int id)
         {
-            var task = await _kanbanAppDbContext.ProjectItems.FindAsync(id);
-            if (task == null)
+            var user = await _kanbanAppDbContext.UserItems.FindAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
-            return Ok(task);
+            return Ok(user);
         }
         [HttpPost]
-        public async Task<ActionResult<ProjectItem>> PostUser(UserItem UserItem)
+        public async Task<ActionResult<UserItem>> PostUser(UserItem UserItem)
         {
             if (UserItem == null)
             {

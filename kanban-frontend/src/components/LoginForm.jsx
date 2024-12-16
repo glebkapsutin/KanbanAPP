@@ -1,13 +1,9 @@
 import { useState } from "react";
 import '../styles/App.css'
-function RegisterForm() {
+function LoginForm({onLoginSuccess}) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: '',
-    SurName: '',
-    age: 0,
-    description: '',
   });
 
   const handleChange = (e) => {
@@ -21,7 +17,7 @@ function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Предотвращаем перезагрузку страницы
     try {
-      const response = await fetch('http://localhost:5291/api/Auth/register', {
+      const response = await fetch('http://localhost:5291/api/Auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,14 +26,24 @@ function RegisterForm() {
       });
 
       const data = await response.json(); // Получаем ответ от сервера
+      console.log('Ответ от сервера после входа:', data); 
       if (response.ok) {
         localStorage.setItem('user', JSON.stringify(data));
-        alert('Регистрация успешна!');
+        alert('Вход успешен!');
+        console.log('Передаваемые данные пользователя:', {
+          id: data.id || data.userId,
+          name: data.name || data.userName || 'Гость',
+          email: data.email || 'email не указан',
+        });
+        onLoginSuccess({
+          id : data.id,
+          name : data.name,
+          email : data.email,});
       } else {
         alert('Ошибка: ' + data.Message);
       }
     } catch (error) {
-      alert('Ошибка при регистрации: ' + error.message);
+      alert('Ошибка при входе: ' + error.message);
     }
   };
 
@@ -65,50 +71,10 @@ function RegisterForm() {
             required
           />
         </div>
-        <div>
-          <label>Имя:</label>
-          <input className="register-input"
-            type="string"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Фамилия:</label>
-          <input className="register-input"
-            type="string"
-            name="SurName"
-            value={formData.SurName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Возраст:</label>
-          <input className="register-input"
-            type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Описание:</label>
-          <input className="register-input"
-            type="string"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Зарегистрироваться</button>
+        <button type="submit">Войти</button>
       </form>
      
     </div>
   );
 }
-export default RegisterForm;
+export default LoginForm;

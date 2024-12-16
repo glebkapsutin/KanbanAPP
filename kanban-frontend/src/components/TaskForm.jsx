@@ -34,20 +34,20 @@ const TaskForm = ({ onAddTask, selectedProject }) => {
   return (
     <div >
       <center>
-      <form onSubmit={handleSubmit}>
-        <input
+      <form className="form-main"onSubmit={handleSubmit}>
+        <input className='input-main'
           type="text"
           placeholder="Заголовок задачи"
           value={TaskName}
           onChange={(e) => SetTaskName(e.target.value)}
         />
-        <input
+        <input className='input-main'
           type="text"
           placeholder="Описание задачи"
           value={Description }
           onChange={(e) => SetDescription(e.target.value)}
         />
-        <button type="submit">Добавить задачу</button>
+        <button className="button_main"type="submit">Добавить задачу</button>
       </form>
       </center>
     </div>

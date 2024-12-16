@@ -2,9 +2,9 @@
 const BaseUrl = "http://localhost:5291/api";
 
 // Функция для получения всех задач с сервера
-export const fetchTasks = async (setTasks) => {
+export const fetchTasks = async (setTasks,projectId) => {
   try {
-    const response = await fetch(`${BaseUrl}/TaskControllers`, {method: 'GET'}); // Запрашиваем задачи с сервера
+    const response = await fetch(`${BaseUrl}/Task/projects/${projectId}/tasks`, {method: 'GET'}); // Запрашиваем задачи с сервера
     if (response.ok) {
       const data = await response.json(); // Получаем данные из ответа сервера
       setTasks(data); // Сохраняем задачи в состоянии
@@ -20,7 +20,7 @@ export const fetchTasks = async (setTasks) => {
 // TaskApi.js
 export const addTask = async (newTask, tasks, setTasks) => {
   try {
-      const response = await fetch(`${BaseUrl}/TaskControllers`, {
+      const response = await fetch(`${BaseUrl}/Task`, {
           method: 'POST',
           headers: {
               "Content-Type": "application/json"
@@ -47,4 +47,3 @@ export const deleteTask = async(tasks,setTasks) =>{
   });
 
 }
-

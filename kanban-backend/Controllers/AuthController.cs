@@ -60,26 +60,34 @@ namespace KanbanApp.Controllers
         public async Task<IActionResult> Login([FromBody] RegisterModel model)
         {
             try
-            {   
-               
+            {
+                // 1. Аутентификация пользователя с использованием SignInManager
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+                
                 if (result.Succeeded)
                 {
-                    // 3. Если успешно, возвращаем сообщение
-                    return Ok(new { Message = "Login successful" });
-                }
-                // 4. Если нет, возвращаем статус 401
-                return Unauthorized();
+                    // 2. Получение пользователя через UserManager
+                    var user = await _userManager.FindByEmailAsync(model.Email);
 
+                    // 3. Возвращаем информацию о пользователе
+                    return Ok(new
+                    {
+                        id = user.Id,         // ID пользователя
+                        name = user.Name,      // Имя пользователя (если есть в модели пользователя)
+                        email = user.Email     // Email пользователя
+                    });
+                }
+
+                // 4. Если аутентификация не успешна, возвращаем статус 401 (Unauthorized)
+                return Unauthorized(new { Message = "Invalid email or password" });
             }
             catch (System.Exception ex)
             {
-
+                // 5. Обработка ошибок, если произошла ошибка на сервере
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
-
-
         }
+
         [Authorize(Roles = "Admin")]
         [HttpPost("assign-role")]
         public async Task<IActionResult> AssignRole(string userId, string roleName )

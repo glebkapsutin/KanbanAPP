@@ -17,20 +17,20 @@ const ProjectForm = ({ onAddProject }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
+    <form className='form-main' onSubmit={handleSubmit}>
+      <input className="input-main"
         type="text"
         placeholder="Заголовок проекта"
         value={ProjectName}
         onChange={(e) => SetTitle(e.target.value)}
       />
-      <input
+      <input className="input-main"
         type="text"
         placeholder="Описание проекта"
         value={Description}
         onChange={(e) => SetDescription(e.target.value)}
       />
-      <button type="submit">Добавить проект</button>
+      <button className="button_main" type="submit">Добавить проект</button>
     </form>
   );
 };

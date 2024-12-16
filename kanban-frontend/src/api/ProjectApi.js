@@ -1,9 +1,8 @@
-
 const BaseUrl = "http://localhost:5291/api";
 
 export const fetchProjects = async (setProjects) => {
   try {
-    const response = await fetch(`${BaseUrl}/ProjectControllers`, {method: 'GET'}); 
+    const response = await fetch(`${BaseUrl}/Project`, {method: 'GET'}); 
     if (response.ok) {
       const data = await response.json(); 
       setProjects(data); 
@@ -18,7 +17,7 @@ export const fetchProjects = async (setProjects) => {
 
 export const addProject = async (newProject, projects, setProjects) => {
   try {
-      const response = await fetch(`${BaseUrl}/ProjectControllers`, {
+      const response = await fetch(`${BaseUrl}/Project`, {
           method: 'POST',
           headers: {
               "Content-Type": "application/json"
@@ -35,4 +34,3 @@ export const addProject = async (newProject, projects, setProjects) => {
       console.error("Ошибка сети:", error);
   }
 };
-

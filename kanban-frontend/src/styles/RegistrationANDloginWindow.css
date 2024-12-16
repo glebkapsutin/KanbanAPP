@@ -1,0 +1,106 @@
+/* Затемнение и размытие фона */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный фон */
+    backdrop-filter: blur(5px);     /* Размытие фона */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Окно регистрации */
+  .registration-window {
+    background-color: #fff;
+    padding: 40px 30px;           /* Увеличенный padding для избежания перекрытий */
+    border-radius: 12px;
+    width: 400px;                 /* Уменьшил ширину для лучшего отображения */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+  
+  /* Кнопка закрытия */
+  .close-button {
+    text-align: end;
+    top: 15px;                    /* Немного опустил кнопку вниз */
+    right: 15px;                  /* Добавил отступ справа */
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #555;
+    cursor: pointer;
+    z-index: 10;                  /* Убедился, что кнопка выше всех элементов формы */
+    margin-bottom: 20px;
+    margin-top: -80px;
+    margin-left: 375px;
+  }
+  
+  /* Стили для формы */
+  .register-form {
+    display: flex;
+    flex-direction:column;
+  }
+  
+  .register-form div {
+    margin-bottom: 15px;
+  }
+  
+  .register-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .register-form input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;       /* Убедился, что padding не влияет на ширину */
+  }
+  
+  .register-form button {
+    background-color: #4CAF50;
+    border-radius: 5px;
+    border: none;
+    padding: 0.8em 1.5em;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--button-text-color);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px var(--shadow-color);
+
+    width: 100%;
+   
+  }
+  
+  .register-form button:hover {
+    background-color: #5aaa5e;
+    transform: translateY(-2px); /* Легкое поднятие кнопки */
+  }
+  .register-form button:focus {
+    outline: none;
+    box-shadow: 0 0 10px var(--primary-color);
+  }
+  
+  
+  .register-input {
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.1); /* Полупрозрачный фон */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color:#555; /* Белый текст */
+    outline: none;
+    transition: box-shadow 0.3s ease, border 0.3s ease;
+  }
+  .register-input:focus {
+    border: 1px solid var(--primary-color); /* Акцентная рамка */
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  }

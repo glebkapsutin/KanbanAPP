@@ -1,0 +1,54 @@
+.header {
+  display: flex; /* Включаем Flexbox */
+  justify-content: space-between; /* Распределяем элементы по краям */
+  align-items: center; /* Выравниваем элементы по вертикали */
+  padding: 20px;
+  background-color: #141e26;
+  color: white;
+  margin-bottom: 20px;
+}
+.header_logo{
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+}
+.header_image{
+  display: flex;
+  width: 160px;
+  height: 160px;
+
+}
+.header_buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: end;
+}
+.header_button {
+  
+  border-radius: var(--border-radius);
+  border: none;
+  padding: 0.8em 1.5em;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  margin-left: 5px;
+  width: 100%;
+}
+
+
+.header_button:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-2px); /* Легкое поднятие кнопки */
+}
+
+.header_button:focus {
+  outline: none;
+  box-shadow: 0 0 10px var(--primary-color);
+}

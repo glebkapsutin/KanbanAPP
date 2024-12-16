@@ -28,7 +28,7 @@ h1, h2, h3 {
 h1 {
   font-size: 2.8rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  
   color: var(--primary-color); /* Акцентный синий для главных заголовков */
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Лёгкая тень для эффекта */
 }
@@ -54,7 +54,8 @@ p {
   margin-bottom: 1rem;
 }
 
-button {
+.button_main {
+  
   border-radius: var(--border-radius);
   border: none;
   padding: 0.8em 1.5em;
@@ -65,15 +66,17 @@ button {
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
   box-shadow: 0 4px 6px var(--shadow-color);
+  margin-left: 5px;
+  width: 100%;
 }
 
 
-button:hover {
+.button_main:hover {
   background-color: var(--button-hover);
   transform: translateY(-2px); /* Легкое поднятие кнопки */
 }
 
-button:focus {
+.button_main:focus {
   outline: none;
   box-shadow: 0 0 10px var(--primary-color);
 }
@@ -112,7 +115,7 @@ button:focus {
   margin: 0 auto;
   padding: 2rem;
 }
-input {
+.input-main {
   border-radius: 8px;
   padding: 12px 15px;
   margin-bottom: 15px;
@@ -123,7 +126,20 @@ input {
   outline: none;
   transition: box-shadow 0.3s ease, border 0.3s ease;
 }
-input:focus {
+.input-main:focus {
   border: 1px solid var(--primary-color); /* Акцентная рамка */
   box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.form-main
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  width: 450px;
+}
+label{
+  color: #0F2027;
 }
