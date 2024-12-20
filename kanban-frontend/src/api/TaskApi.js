@@ -15,7 +15,26 @@ export const fetchTasks = async (setTasks,projectId) => {
     console.error("Ошибка при получении задач:", error); // Выводим ошибку, если запрос не удался
   }
 };
+export const updateStatusTask = async (taskId, newStatus) => {
+  try {
+    const response = await fetch(`${BaseUrl}/Task/update-status/${taskId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newStatus),
+    });
 
+    if (!response.ok) {
+      throw new Error('Ошибка при обновлении статуса задачи');
+    }
+
+    return await response.json(); // Возвращаем обновлённую задачу
+  } catch (error) {
+    console.error('Ошибка при обновлении статуса задачи:', error);
+    return null;
+  }
+};
 // Функция для добавления новой задачи на сервер
 // TaskApi.js
 export const addTask = async (newTask, tasks, setTasks) => {

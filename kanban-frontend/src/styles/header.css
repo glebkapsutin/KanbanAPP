@@ -1,30 +1,41 @@
 .header {
-  display: flex; /* Включаем Flexbox */
-  justify-content: space-between; /* Распределяем элементы по краям */
-  align-items: center; /* Выравниваем элементы по вертикали */
+  display: flex;
+  justify-content: space-between; /* Элементы будут по краям */
+  align-items: center;
   padding: 20px;
   background-color: #141e26;
   color: white;
   margin-bottom: 20px;
 }
-.header_logo{
 
+.header_logo {
   display: flex;
   align-items: center;
-  justify-content: center;
   height: 100px;
 }
-.header_image{
-  display: flex;
+
+.header_image {
   width: 160px;
   height: 160px;
-
 }
+
 .header_buttons {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: end;
+  display: flex;
+  flex: 1; /* Расширяем блок, чтобы занять всё пространство */
+  justify-content: space-between; /* Центрируем блоки кнопок */
+  align-items: center;
+}
+
+.center_buttons {
+  display: flex;
+  gap: 10px;
+  margin: 0 auto; 
+  width: 500px;
+}
+
+.right_buttons {
+  display: flex;
+  gap: 10px;
 }
 .header_button {
   

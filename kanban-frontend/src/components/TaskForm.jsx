@@ -21,6 +21,7 @@ const TaskForm = ({ onAddTask, selectedProject }) => {
         TaskName,
         Description,
         projectId: selectedProject, // Убедитесь, что ID проекта передается
+        
       });
 
       SetTitle('');

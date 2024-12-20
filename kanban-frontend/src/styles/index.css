@@ -11,7 +11,9 @@
   --shadow-color: rgba(0, 0, 0, 0.2); /* Глубокая тень */
   --border-radius: 12px; /* Закругленные углы */
 }
-
+html{
+  height: 100vh;
+}
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;

@@ -1,24 +1,17 @@
+html, body {
+  height: 100%;            /* Задаём высоту 100% для html и body */
+  margin: 0;               /* Убираем отступы */
+  display: flex;           /* Делаем body гибким контейнером */
+  flex-direction: column;  /* Элементы располагаются вертикально */
+}
+
 .app-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Две колонки */
-  gap: 2rem; /* Расстояние между колонками */
-}
-.title{
-  font-weight: 700;
-  text-transform: uppercase;
-  font-family:Arial, Helvetica, sans-serif;
-}
-.task-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  min-height: 100vh;       /* Минимальная высота контейнера — 100% высоты экрана */
 }
 
-
-
-
-
-
+main {
+  flex: 1;                 /* Заставляем main занимать всё доступное пространство */
+  padding: 20px;           /* Добавляем отступы */
+}

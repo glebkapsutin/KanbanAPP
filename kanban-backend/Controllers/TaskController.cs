@@ -57,6 +57,10 @@ namespace KanbanApp.Controllers
                     return BadRequest("Deadline cannot be in the past."); // Возвращаем ошибку, если дедлайн в прошлом
                 }
             }
+            if(taskItem.Status==null)
+            {
+                taskItem.Status =Task_Status.To_Do;
+            }
 
             await _kanbanAppDbContext.TaskItems.AddAsync(taskItem);
 

@@ -15,6 +15,8 @@ const App = () => {
   const [isRegisterFormVisible, setIsRegisterFormVisible] = useState(false);
   const [isLoginFormVisible, setIsLoginFormVisible] = useState(false);
   const [user, setUser] = useState(null);
+  const [showProjects,setShowProjects]=useState(false);
+  const [showTasks,setShowTasks]=useState(false);
 
   const handleAddTask = (newTask) => {
     if (!selectedProject) {
@@ -25,6 +27,17 @@ const App = () => {
     console.log('Добавляем задачу с данными:', newTask);
     addTask(newTask, tasks, setTasks);
   };
+  const handleProjectsClick = () => {
+    setShowProjects(true);
+    setShowTasks(false);
+    console.log('Перейти к проектам');
+  };
+  const handleTasksClick = () => {
+    setShowProjects(true);
+    setShowTasks(true);
+    console.log('Перейти к задачам');
+  };
+
 
   useEffect(() => {
     if (user && selectedProject) {
@@ -57,17 +70,22 @@ const App = () => {
   
 
   return (
-    <div className={isRegisterFormVisible || isLoginFormVisible ? 'blurred-background' : ''}>
+    <div className="app-container">
       <Header
         onRegisterClick={() => setIsRegisterFormVisible(true)}
         onLoginClick={() => setIsLoginFormVisible(true)}
         user={user}
+        OnProjectsClick={handleProjectsClick}
+        OnTasksClick={handleTasksClick}
       />
       <MainContent
         tasks={tasks}
+        setTasks={setTasks}
         selectedProject={selectedProject}
         setSelectedProject={setSelectedProject}
         handleAddTask={handleAddTask}
+        showProjects={showProjects}
+        showTasks={showTasks}
       />
       <Footer />
 
