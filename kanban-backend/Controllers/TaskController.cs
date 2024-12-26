@@ -57,10 +57,11 @@ namespace KanbanApp.Controllers
                     return BadRequest("Deadline cannot be in the past."); // Возвращаем ошибку, если дедлайн в прошлом
                 }
             }
-            if(taskItem.Status==null)
+            if (taskItem.Status == null)
             {
-                taskItem.Status =Task_Status.To_Do;
+                taskItem.Status = Task_Status.To_Do; // Присваиваем статус "To_Do" по умолчанию
             }
+
 
             await _kanbanAppDbContext.TaskItems.AddAsync(taskItem);
 
@@ -124,16 +125,16 @@ namespace KanbanApp.Controllers
             return NoContent();
 
         }
-        [Authorize]
+        [AllowAnonymous]
         [HttpPut("update-status/{id}")]
-        public async Task<ActionResult> UpdateTaskStatus(int id, [FromBody] Task_Status status)
+        public async Task<ActionResult> UpdateTaskStatus(int id, [FromBody] int status)
         {
             var task = await _kanbanAppDbContext.TaskItems.FindAsync(id);
             if (task == null)
             {
                 return NotFound("Task not found");
             }
-            task.Status = status;
+            task.Status =(Task_Status)status;
             await _kanbanAppDbContext.SaveChangesAsync();
             return Ok(task);
         }

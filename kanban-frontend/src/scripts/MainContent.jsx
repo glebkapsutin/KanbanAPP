@@ -8,7 +8,6 @@ import KanbanBoard from "../components/KanbanBoard";
 
 
 const MainContent = ({
-    
     tasks,
     selectedProject,
     setSelectedProject,

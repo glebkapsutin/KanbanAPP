@@ -1,5 +1,6 @@
 import React from 'react';
-import '../styles/Task.css'
+import '../styles/Task.css';
+
 
 const TaskList = ({ tasks }) => {
   return (
@@ -11,6 +12,7 @@ const TaskList = ({ tasks }) => {
             <li key={task.id}>
               <h2>{task.taskName}</h2>
               <h3>{task.description}</h3>
+              <p><strong>Статус:{task.status}</strong> {}</p>
             </li>
           ))
         ) : (

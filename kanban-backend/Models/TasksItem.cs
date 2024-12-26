@@ -8,7 +8,8 @@ namespace KanbanApp.Models
     public class TaskItem
     {
         public int? Id { get; set; }
-        public Task_Status? Status { get; set; }
+        public Task_Status? Status { get; set; } = Task_Status.To_Do; // По умолчанию
+
         public string? Description { get; set; }
 
         public string? TaskName { get; set; }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-
 import { updateStatusTask } from '../api/TaskApi'; // Импортируем функцию для обновления статуса
 import '../styles/KanbanBoard.css';
 
@@ -11,24 +10,33 @@ const KanbanBoard = ({ tasks, setTasks }) => {
     Done: 'Done',
   };
 
+  const statusMap = {
+    0: 'To_Do',
+    1: 'In_Progress',
+    2: 'Done',
+  };
+
+  const reverseStatusMap = {
+    To_Do: 0,
+    In_Progress: 1,
+    Done: 2,
+  };
+
   const handleDragEnd = async (result) => {
     const { source, destination } = result;
 
-    // Если нет места назначения, ничего не делаем
     if (!destination) return;
 
-    // Получаем задачу, которую перетаскиваем
     const updatedTasks = [...tasks];
     const [movedTask] = updatedTasks.splice(source.index, 1);
 
-    // Новый статус задачи
-    const newStatus = destination.droppableId;
+    const newStatus = reverseStatusMap[destination.droppableId];
+    console.log("New status from droppableId:", destination.droppableId, newStatus);
 
     // Отправляем запрос на сервер для обновления статуса
-    const updatedTask = await updateStatusTask(movedTask.id, { status: newStatus });
+    const updatedTask = await updateStatusTask(movedTask.id, newStatus);
 
     if (updatedTask) {
-      // Обновляем статус задачи в локальном состоянии
       movedTask.status = newStatus;
       updatedTasks.splice(destination.index, 0, movedTask);
       setTasks(updatedTasks);
@@ -50,7 +58,7 @@ const KanbanBoard = ({ tasks, setTasks }) => {
               >
                 <h2>{columns[status]}</h2>
                 {tasks
-                  .filter((task) => task.status === status)
+                  .filter((task) => statusMap[task.status] === status)
                   .map((task, index) => (
                     <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
                       {(provided) => (
