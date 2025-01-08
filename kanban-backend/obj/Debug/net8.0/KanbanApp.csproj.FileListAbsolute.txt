@@ -173,8 +173,6 @@
 /Users/glebkapustin/Desktop/Cods/KanbanApp/bin/Debug/net8.0/Microsoft.Extensions.Options.dll
 /Users/glebkapustin/Desktop/Cods/KanbanApp/bin/Debug/net8.0/kanban-frontend/package-lock.json
 /Users/glebkapustin/Desktop/Cods/KanbanApp/bin/Debug/net8.0/kanban-frontend/package.json
-/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/appsettings.Development.json
-/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/appsettings.json
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/KanbanApp
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/KanbanApp.deps.json
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/KanbanApp.runtimeconfig.json
@@ -351,3 +349,16 @@
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/publish/appsettings.json
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/publish/KanbanApp.deps.json
 /Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/publish/KanbanApp.runtimeconfig.json
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/appsettings.Development.json
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/bin/Debug/net8.0/appsettings.json
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.csproj.AssemblyReference.cache
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.GeneratedMSBuildEditorConfig.editorconfig
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.AssemblyInfoInputs.cache
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.AssemblyInfo.cs
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.csproj.CoreCompileInputs.cache
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.MvcApplicationPartsAssemblyInfo.cs
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.MvcApplicationPartsAssemblyInfo.cache
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.sourcelink.json
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.dll
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/refint/KanbanApp.dll
+/Users/glebkapustin/Desktop/Cods/Kanban/kanban-backend/Web/obj/Debug/net8.0/KanbanApp.pdb
