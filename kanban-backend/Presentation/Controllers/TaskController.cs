@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using KanbanApp.Data;
+using KanbanApp.Infrastructure.Data;
 using KanbanApp.Core.Models;
 using KanbanApp.Core.Enums;
 using Microsoft.EntityFrameworkCore;

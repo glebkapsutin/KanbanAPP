@@ -1,6 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
-using KanbanApp.Data;
+using KanbanApp.Infrastructure.Data;
 using KanbanApp.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;

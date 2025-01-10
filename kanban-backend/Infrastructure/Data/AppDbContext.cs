@@ -3,8 +3,7 @@ using KanbanApp.Core.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 
-namespace KanbanApp.Data
-{
+namespace KanbanApp.Infrastructure.Data{
     public class KanbanAppDbContext : IdentityDbContext<UserItem,IdentityRole<int>,int>
     {
         public KanbanAppDbContext(DbContextOptions<KanbanAppDbContext> options)

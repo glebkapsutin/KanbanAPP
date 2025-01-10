@@ -1,7 +1,10 @@
-using Microsoft.EntityFrameworkCore; // Необходимо для использования DbContext
-using KanbanApp.Data; // Пространство имен для KanbanAppDbContext
+using Microsoft.EntityFrameworkCore;
+using KanbanApp.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
-using KanbanApp.Core.Models; // Пространство имен для использования модели UserItem
+using KanbanApp.Core.Models;
+using KanbanApp.Application.Interfaces;
+using KanbanApp.Infrastructure.Repositories;
+using KanbanApp.Application.Services;
 using KanbanApp.Core.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +34,6 @@ var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "kanbanapp_db";
 
 var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
-
 // Подключение контекста базы данных с использованием Npgsql и настроенной строки подключения
 builder.Services.AddDbContext<KanbanAppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -40,6 +42,10 @@ builder.Services.AddDbContext<KanbanAppDbContext>(options =>
 builder.Services.AddIdentity<UserItem, IdentityRole<int>>() // Добавляем Identity
     .AddEntityFrameworkStores<KanbanAppDbContext>() // Указываем, что храним пользователей и роли в нашей БД через KanbanAppDbContext
     .AddDefaultTokenProviders(); // Поддержка токенов для сброса пароля и других функций
+
+// Регистрация сервисов и репозиториев
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 
 var app = builder.Build();
 
