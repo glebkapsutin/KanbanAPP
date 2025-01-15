@@ -1,19 +1,21 @@
-import RegisterForm from "./RegisterForm";
+import RegisterForm from "./RegisterForm"; // Импортируем компонент формы регистрации
 import React from "react";
-import "../styles/RegistrationANDloginWindow.css"
+import "../styles/RegistrationANDloginWindow.css"; // Подключаем стили
 
-const RegistrationWindow=({onClose})=>{
+// Компонент окна регистрации
+const RegistrationWindow = ({ onClose }) => {
     return (
-    <div className="overlay">
-      <div className="registration-window">
+    <div className="overlay"> {/* Создаём оверлей для затемнения фона */}
+      <div className="registration-window"> {/* Основной контейнер для окна регистрации */}
+        {/* Кнопка для закрытия окна */}
         <button className="close-button" onClick={onClose}>
          ✖
         </button>
+        {/* Вставляем форму регистрации */}
         <RegisterForm />
-       
-
       </div>
     </div>
     );
 };
+
 export default RegistrationWindow;

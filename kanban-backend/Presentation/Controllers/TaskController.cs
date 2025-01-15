@@ -154,7 +154,7 @@ namespace KanbanApp.Presentation.Controllers
         }
 
         [AllowAnonymous]
-       [HttpPut("update-status/{id}")]
+        [HttpPut("update-status/{id}")]
         public async Task<ActionResult> UpdateTaskStatus(int id, [FromBody] int status)
         {
             try

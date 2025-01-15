@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using KanbanApp.Infrastructure.Data;
+using KanbanApp.Application.Interfaces;
 using KanbanApp.Core.Models;
-using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Mvc;
 
 namespace KanbanApp.Presentation.Controllers
 {
@@ -10,85 +8,73 @@ namespace KanbanApp.Presentation.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly KanbanAppDbContext _kanbanAppDbContext;
+        private readonly IUserService _userService;
 
-        public UsersController(KanbanAppDbContext context)
+        public UsersController(IUserService userService)
         {
-            _kanbanAppDbContext = context;
+            _userService = userService;
         }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserItem>>> GetUsers()
         {
-            var user = await _kanbanAppDbContext.UserItems.ToListAsync();
-            return Ok(user);
+            var users = await _userService.GetUsersAsync();
+            return Ok(users);
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<UserItem>> GetUserId(int id)
         {
-            var user = await _kanbanAppDbContext.UserItems.FindAsync(id);
+            var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
             return Ok(user);
         }
+
         [HttpPost]
-        public async Task<ActionResult<UserItem>> PostUser(UserItem UserItem)
+        public async Task<ActionResult<UserItem>> PostUser(UserItem userItem)
         {
-            if (UserItem == null)
+            if (userItem == null)
             {
-                return BadRequest("Dont have Item");
+                return BadRequest("User item is null");
             }
-            await _kanbanAppDbContext.UserItems.AddAsync(UserItem);
 
-            await _kanbanAppDbContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetUsers), new { UserItem.Id }, UserItem);
+            var user = await _userService.CreateUserAsync(userItem);
+            return CreatedAtAction(nameof(GetUserId), new { id = user.Id }, user);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteUser(int id)
         {
-            var userItem = await _kanbanAppDbContext.UserItems.FindAsync(id);
-            if (userItem == null)
+            try
+            {
+                await _userService.DeleteUserAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-            _kanbanAppDbContext.UserItems.Remove(userItem);
-            await _kanbanAppDbContext.SaveChangesAsync();
-            return NoContent();
         }
-
 
         [HttpPut("{id}")]
-
         public async Task<ActionResult> PutUser(int id, UserItem userItem)
         {
-            if (id != userItem.Id)
-            {
-                return BadRequest("Id doesn't match");
-            }
-            _kanbanAppDbContext.Entry(userItem).State = EntityState.Modified;
             try
             {
-                await _kanbanAppDbContext.SaveChangesAsync();
+                await _userService.UpdateUserAsync(id, userItem);
+                return NoContent();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (ArgumentException ex)
             {
-
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                throw;
+                return BadRequest(ex.Message);
             }
-            return NoContent();
-
-        }
-
-        private bool UserExists(int id)
-        {
-            return _kanbanAppDbContext.UserItems.Any(x => x.Id == id);
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
     }
 }

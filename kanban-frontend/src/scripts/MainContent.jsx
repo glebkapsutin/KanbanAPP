@@ -1,12 +1,17 @@
-import React from "react";
-import Projects from "../components/Projects";
+import React from "react"; // Импортируем React
+import Projects from "../components/Projects"; // Импорт компонента для отображения проектов
+import TaskForm from "../components/TaskForm"; // Импорт формы для добавления задач
+import TaskList from "../components/TaskList"; // Импорт компонента для отображения списка задач
+import KanbanBoard from "../components/KanbanBoard"; // Импорт доски Kanban
 
-import TaskForm from "../components/TaskForm";
-import TaskList from "../components/TaskList";
-
-import KanbanBoard from "../components/KanbanBoard";
-
-
+// Основной компонент, который принимает пропсы:
+// tasks — список задач
+// selectedProject — текущий выбранный проект
+// setSelectedProject — функция для изменения выбранного проекта
+// handleAddTask — функция для добавления задач
+// showProjects — флаг для отображения списка проектов
+// showTasks — флаг для отображения задач
+// setTasks — функция для обновления списка задач
 const MainContent = ({
     tasks,
     selectedProject,
@@ -15,36 +20,35 @@ const MainContent = ({
     showProjects,
     showTasks,
     setTasks,
-    
-  }) => {
+}) => {
     return (
-      <main>
-        {/* Если форма регистрации видна, отображаем ее */}
-       
+        <main> {/* Основной контейнер для контента */}
+            {/* Если нужно показать список проектов */}
+            {showProjects && (
+                <Projects
+                    onSelectProject={setSelectedProject} // Передаем функцию для изменения выбранного проекта
+                    selectedProject={selectedProject} // Передаем текущий выбранный проект
+                />
+            )}
   
-        {showProjects && (
-          <Projects
-            onSelectProject={setSelectedProject}
-            selectedProject={selectedProject}
-          />
-         )}
-  
-        {/* Задачи выбранного проекта */}
-        {selectedProject && showTasks && (
-          <div>
-            
-            <TaskForm
-            onAddTask={handleAddTask}
-            selectedProject={selectedProject}
-            />
-            <TaskList
-              tasks={tasks.filter((task) => task.projectId === selectedProject)}  //закомменти что- то из TaskList или KanbanBoard,  смотря что ты хочешь отобразить
-            />
-            <KanbanBoard tasks={tasks} setTasks={setTasks} />
-          </div>
-        )}
-      </main>
+            {/* Если проект выбран и нужно отображать задачи */}
+            {selectedProject && showTasks && (
+                <div>
+                    {/* Форма для добавления задачи */}
+                    <TaskForm
+                        onAddTask={handleAddTask} // Передаем функцию для добавления задачи
+                        selectedProject={selectedProject} // Передаем выбранный проект для добавления задачи
+                    />
+                    {/* Список задач, фильтруем по выбранному проекту */}
+                    <TaskList
+                        tasks={tasks.filter((task) => task.projectId === selectedProject)} // Фильтруем задачи по projectId
+                    />
+                    {/* Доска Kanban для отображения задач в формате Kanban */}
+                    <KanbanBoard tasks={tasks} setTasks={setTasks} />
+                </div>
+            )}
+        </main>
     );
-  };
-  
-  export default MainContent;
+};
+
+export default MainContent; // Экспортируем компонент

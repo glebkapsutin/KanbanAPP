@@ -1,55 +1,64 @@
-import React, { useState } from 'react';
-import '../styles/Task.css';
+import React, { useState } from 'react'; // Импортируем React и хук useState
+import '../styles/Task.css'; // Импортируем стили для компонента
 
 const TaskForm = ({ onAddTask, selectedProject }) => {
-  const [TaskName, SetTaskName] = useState('');
-  const [Description, SetDescription] = useState('');
+  // useState - это хук, который используется для создания состояния компонента.
+  // Изначально состояние для TaskName (название задачи) и Description (описание задачи) пустое.
+  const [TaskName, SetTaskName] = useState(''); // Состояние для названия задачи
+  const [Description, SetDescription] = useState(''); // Состояние для описания задачи
 
+  // Функция для обработки отправки формы
   const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Текущий выбранный проект:', selectedProject);
-    console.log("Отправляем задачу:", { TaskName, Description, projectId: selectedProject });
+    e.preventDefault(); // preventDefault предотвращает перезагрузку страницы при отправке формы
+    console.log('Текущий выбранный проект:', selectedProject); // Выводим в консоль выбранный проект
+    console.log("Отправляем задачу:", { TaskName, Description, projectId: selectedProject }); // Выводим данные задачи
 
+    // Если проект не выбран (selectedProject = null или undefined), выводим предупреждение
     if (!selectedProject) {
       alert('Пожалуйста, выберите проект перед добавлением задачи!');
-      return;
+      return; // Выход из функции, если проект не выбран
     }
 
+    // Если оба поля (название и описание задачи) заполнены, отправляем задачу
     if (TaskName && Description) {
       onAddTask({
-        TaskName,
-        Description,
-        projectId: selectedProject,
-        status: 0, // Добавляем статус по умолчанию
+        TaskName, // Название задачи
+        Description, // Описание задачи
+        projectId: selectedProject, // ID выбранного проекта
+        status: 0, // Статус задачи по умолчанию (например, 0 - не начата)
       });
 
-      SetTaskName(''); // Исправление ошибки в названии функции
-      SetDescription('');
+      // После отправки задачи очищаем поля формы
+      SetTaskName(''); // Очищаем поле для названия задачи
+      SetDescription(''); // Очищаем поле для описания задачи
     } else {
-      console.error("Ошибка: отсутствует Project ID или другие поля!");
+      console.error("Ошибка: Название задачи и описание не могут быть пустыми!"); // Ошибка, если поля пустые
     }
   };
 
   return (
     <div>
-      <center>
-        <form className="form-main" onSubmit={handleSubmit}>
+      <center> {/* Центрируем форму на странице */}
+        <form className="form-main" onSubmit={handleSubmit}> {/* Обработчик отправки формы */}
+          {/* Поле для ввода названия задачи */}
           <input
-            className="input-main"
-            type="text"
-            placeholder="Заголовок задачи"
-            value={TaskName}
-            onChange={(e) => SetTaskName(e.target.value)}
+            className="input-main" // Стили для поля ввода
+            type="text" // Тип поля ввода - текст
+            placeholder="Заголовок задачи" // Подсказка, что нужно ввести
+            value={TaskName} // Значение поля - это состояние TaskName
+            onChange={(e) => SetTaskName(e.target.value)} // При изменении значения обновляем состояние TaskName
           />
+          {/* Поле для ввода описания задачи */}
           <input
-            className="input-main"
-            type="text"
-            placeholder="Описание задачи"
-            value={Description}
-            onChange={(e) => SetDescription(e.target.value)}
+            className="input-main" // Стили для поля ввода
+            type="text" // Тип поля ввода - текст
+            placeholder="Описание задачи" // Подсказка для пользователя
+            value={Description} // Значение поля - это состояние Description
+            onChange={(e) => SetDescription(e.target.value)} // При изменении значения обновляем состояние Description
           />
+          {/* Кнопка отправки формы */}
           <button className="button_main" type="submit">
-            Добавить задачу
+            Добавить задачу {/* Текст на кнопке */}
           </button>
         </form>
       </center>
@@ -57,4 +66,4 @@ const TaskForm = ({ onAddTask, selectedProject }) => {
   );
 };
 
-export default TaskForm;
+export default TaskForm; // Экспортируем компонент для использования в других частях приложения
