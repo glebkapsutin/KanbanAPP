@@ -57,7 +57,7 @@ export const addTask = async (newTask, tasks, setTasks) => {
   }
 };
 export const deleteTask = async(tasks,setTasks) =>{
-  const response = await fetch(`${BaseUrl}/TaskControllers`, {
+  const response = await fetch(`${BaseUrl}/Task`, {
     method: 'DELETE',
     headers: {
       "Content-Type": "application/json"

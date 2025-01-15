@@ -4,7 +4,7 @@ using KanbanApp.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace KanbanApp.Controllers
+namespace KanbanApp.Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

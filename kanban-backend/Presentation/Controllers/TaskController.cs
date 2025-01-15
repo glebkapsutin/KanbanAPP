@@ -5,30 +5,32 @@ using KanbanApp.Core.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using KanbanApp.Application.Interfaces;
 
 
-namespace KanbanApp.Controllers
+
+namespace KanbanApp.Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class TaskController : ControllerBase
     {
-        private readonly KanbanAppDbContext _kanbanAppDbContext;
-
-        public TaskController(KanbanAppDbContext context)
+        private readonly ITaskService _taskService;
+ 
+        public TaskController(ITaskService taskService)
         {
-            _kanbanAppDbContext = context;
+            _taskService = taskService;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
         {
-            var task = await _kanbanAppDbContext.TaskItems.ToListAsync();
+            var task = await _taskService.GetTaskAsync();
             return Ok(task);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasksId(int id)
+        public async Task<ActionResult<TaskItem>> GetTasksId(int id)
         {
-            var task = await _kanbanAppDbContext.TaskItems.FindAsync(id);
+            var task = await _taskService.GetTaskIdAsync(id);
             if (task == null)
             {
                 return NotFound();
@@ -36,116 +38,143 @@ namespace KanbanApp.Controllers
             return Ok(task);
         }
 
+        
         [HttpPost]
-        public async Task<ActionResult<TaskItem>> PostTask(TaskItem taskItem)
+        public async Task<ActionResult<TaskItem>> PostTask([FromBody] TaskItem taskItem)
         {
-           if (taskItem.ProjectId == null)
-            {
-                return BadRequest("ProjectId is required.");
-            }
-
-            var project = await _kanbanAppDbContext.ProjectItems.FindAsync(taskItem.ProjectId);
-            if (project == null)
-            {
-                return BadRequest($"Project with ID {taskItem.ProjectId} does not exist.");
-            }
-
-
-            if (taskItem.Deadline.HasValue) // Проверяем, установлен ли дедлайн
-            {
-                if (taskItem.Deadline < DateTime.Now) // Проверяем, не в прошлом ли дедлайн
-                {
-                    return BadRequest("Deadline cannot be in the past."); // Возвращаем ошибку, если дедлайн в прошлом
-                }
-            }
-            if (taskItem.Status == null)
-            {
-                taskItem.Status = Task_Status.To_Do; // Присваиваем статус "To_Do" по умолчанию
-            }
-
-
-            await _kanbanAppDbContext.TaskItems.AddAsync(taskItem);
-
-
-            await _kanbanAppDbContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetTasks), new { taskItem.Id }, taskItem);
-        }
-        [Authorize]
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteTask(int id)
-        {
-            var taskItem = await _kanbanAppDbContext.TaskItems.FindAsync(id);
             if (taskItem == null)
             {
-                return NotFound();
+                return BadRequest("Task item cannot be null.");
             }
-            if (!IsTaskOwnedByCurrentUser(taskItem))
+
+            try
             {
-                return Forbid("this is not your task.");
+                // Используем метод из сервиса для добавления задачи
+                var createdTask = await _taskService.AddTaskAsync(taskItem);
+
+                // Возвращаем созданную задачу с кодом 201 (Created) и ссылкой на нее
+                return CreatedAtAction(nameof(GetTasksId), new { id = createdTask.Id }, createdTask);
             }
-            _kanbanAppDbContext.TaskItems.Remove(taskItem);
-            await _kanbanAppDbContext.SaveChangesAsync();
-            return NoContent();
+            catch (ArgumentException ex)
+            {
+                // Если данные невалидны (например, ProjectId отсутствует или Deadline в прошлом)
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Если связанный проект не найден
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Для любых других ошибок возвращаем код 500
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
         }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+       
+        public async Task<ActionResult> DeleteTask(int id)
+        {
+            try
+            {
+                // Получаем текущего пользователя (например, из токена)
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Вызываем метод сервиса для удаления задачи
+                await _taskService.TaskDeleteAsync(id, currentUserId);
+
+                // Возвращаем статус 204 (No Content) при успешном удалении
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Задача не найдена
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                // Пользователь не имеет права удалять задачу
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Обработка других ошибок
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
 
         [Authorize]
         [HttpPut("{id}")]
 
-        public async Task<ActionResult> PutTask(int id, TaskItem taskItem)
+        public async Task<ActionResult> PutTask(int id, [FromBody] TaskItem taskItem)
         {
-            if (id != taskItem.Id)
-            {
-                return BadRequest("Id doesn't match");
-            }
-            if (!IsTaskOwnedByCurrentUser(taskItem))
-            {
-                return Forbid("You cannot modify tasks that don't belong to you.");
-            }
-            if (taskItem.Deadline.HasValue) // Проверяем, установлен ли дедлайн
-            {
-                if (taskItem.Deadline < DateTime.Now) // Проверяем, не в прошлом ли дедлайн
-                {
-                    return BadRequest("Deadline cannot be in the past."); // Возвращаем ошибку, если дедлайн в прошлом
-                }
-            }
-            _kanbanAppDbContext.Entry(taskItem).State = EntityState.Modified;
             try
             {
-                await _kanbanAppDbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
+                // Получаем ID текущего пользователя (например, из токена)
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                if (!TaskExists(id))
+                if (currentUserId == null)
                 {
-                    return NotFound();
+                    return Unauthorized("User is not authenticated.");
                 }
-                throw;
-            }
-            return NoContent();
 
+                // Вызываем метод сервиса для обновления задачи
+                await _taskService.TaskUpdateAsync(id, taskItem, currentUserId);
+
+                return NoContent(); // Успешное обновление, без содержимого
+            }
+            catch (ArgumentException ex)
+            {
+                // Возвращаем 400, если возникли ошибки в данных задачи
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Возвращаем 403, если пользователь не владеет задачей
+                return Forbid("You cannot modify tasks that don't belong to you.");
+            }
+            catch (KeyNotFoundException)
+            {
+                // Возвращаем 404, если задача не найдена
+                return NotFound($"Task with ID {id} not found.");
+            }
+            catch (Exception ex)
+            {
+                // Возвращаем 500 для любых других ошибок
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
         }
+
         [AllowAnonymous]
-        [HttpPut("update-status/{id}")]
+       [HttpPut("update-status/{id}")]
         public async Task<ActionResult> UpdateTaskStatus(int id, [FromBody] int status)
         {
-            var task = await _kanbanAppDbContext.TaskItems.FindAsync(id);
-            if (task == null)
+            try
             {
-                return NotFound("Task not found");
+                // Вызываем сервис для обновления статуса
+                await _taskService.UpdateTaskStatus(id, (Task_Status)status);
+                return Ok(new { Message = "Task status updated successfully." });
             }
-            task.Status =(Task_Status)status;
-            await _kanbanAppDbContext.SaveChangesAsync();
-            return Ok(task);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
+
+
 
         [HttpGet("status/{status}")]
         public async Task<ActionResult> FiltrationTaskStatus(Task_Status status)
         {
-            var task = await _kanbanAppDbContext.TaskItems
-            .Where(x => x.Status == status)
-            .ToListAsync();
+            var task = await _taskService.FiltrationTaskStatus(status);
             return Ok(task);
         }
         [HttpGet("my-tasks")]
@@ -154,25 +183,35 @@ namespace KanbanApp.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(currentUserId))
                 return Forbid("User not authenticated.");
-            var tasks = await _kanbanAppDbContext.TaskItems
-            .Where(x => x.UserId.ToString() == currentUserId)
-            .ToListAsync();
+            var tasks = await _taskService.GetMyTasks(currentUserId);
             return Ok(tasks);
         }
+        
         [HttpGet("projects/{projectId}/tasks")]
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetProjectTasks(int projectId)
         {
-            var tasks = await _kanbanAppDbContext.TaskItems
-                .Where(t => t.ProjectId == projectId)
-                .ToListAsync();
-
-            if (tasks.Count == 0)
+            try
             {
-                return NotFound("No tasks found for this project.");
-            }
+                // Вызываем метод сервиса для получения задач по проекту
+                var tasks = await _taskService.GetProjectTasks(projectId);
 
-            return Ok(tasks);
+                // Если задач нет, возвращаем 404 Not Found
+                if (!tasks.Any())
+                {
+                    return NotFound("No tasks found for this project.");
+                }
+
+                // Возвращаем список задач
+                
+                return Ok(tasks);
+            }
+            catch (Exception ex)
+            {
+                // Обрабатываем другие возможные ошибки
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
         }
+
 
 
         private bool IsTaskOwnedByCurrentUser(TaskItem taskItem)
@@ -185,11 +224,11 @@ namespace KanbanApp.Controllers
             }
 
             // Сравниваем идентификатор пользователя задачи с текущим пользователем
-            return taskItem.UserId.ToString() == currentUserId;
+            return _taskService.IsTaskOwnedByCurrentUser(taskItem,currentUserId);
         }
         private bool TaskExists(int id)
         {
-            return _kanbanAppDbContext.TaskItems.Any(x => x.Id == id);
+            return _taskService.TaskExistsAsync(id);
         }
     }
 }

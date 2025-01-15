@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using KanbanApp.Core.Models;
 using KanbanApp.Application.Interfaces;
 
-namespace KanbanApp.Controllers
+namespace KanbanApp.Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

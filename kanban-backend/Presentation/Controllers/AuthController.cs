@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using KanbanApp.Core.Models;
 
-namespace KanbanApp.Controllers
+namespace KanbanApp.Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
