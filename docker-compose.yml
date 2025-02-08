@@ -2,33 +2,35 @@ version: '3.8'
 
 services:
   kanban-db:
+    restart: always
+    container_name: kanban-db
     image: postgres:latest
     environment:
       POSTGRES_DB: kanbanapp_db
-      POSTGRES_USER: glebkapustin
-      POSTGRES_PASSWORD: 074123
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - kanban-net
 
   backend:
     build:
       context: ./kanban-backend
+      dockerfile: Dockerfile
     ports:
       - "5291:5291"
     environment:
-      - DB_HOST=kanban-db
-      - DB_PORT=5432
-      - DB_USER=glebkapustin
-      - DB_PASSWORD=074123
-      - DB_NAME=kanbanapp_db
+      - ASPNETCORE_URLS=http://+:5291
     networks:
       - kanban-net
+    depends_on:
+      - kanban-db
 
   frontend:
     build:
       context: ./kanban-frontend
+      dockerfile: Dockerfile
     ports:
       - "5173:80"
     networks:

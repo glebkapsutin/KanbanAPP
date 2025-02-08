@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KanbanApp.Migrations
 {
     [DbContext(typeof(KanbanAppDbContext))]
-    [Migration("20241127112627_UpdateModels")]
-    partial class UpdateModels
+    [Migration("20250208202201_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace KanbanApp.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("KanbanApp.Models.Comment", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.Comment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,7 +60,7 @@ namespace KanbanApp.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("KanbanApp.Models.ProjectItem", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.ProjectItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -84,7 +84,7 @@ namespace KanbanApp.Migrations
                     b.ToTable("ProjectItems");
                 });
 
-            modelBuilder.Entity("KanbanApp.Models.TaskItem", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.TaskItem", b =>
                 {
                     b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
@@ -101,7 +101,7 @@ namespace KanbanApp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProjectId")
+                    b.Property<int>("ProjectId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("Status")
@@ -122,7 +122,7 @@ namespace KanbanApp.Migrations
                     b.ToTable("TaskItems");
                 });
 
-            modelBuilder.Entity("KanbanApp.Models.UserItem", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.UserItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -333,15 +333,15 @@ namespace KanbanApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("KanbanApp.Models.Comment", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.Comment", b =>
                 {
-                    b.HasOne("KanbanApp.Models.TaskItem", "TaskItem")
+                    b.HasOne("KanbanApp.Core.Models.TaskItem", "TaskItem")
                         .WithMany()
                         .HasForeignKey("TaskItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KanbanApp.Models.UserItem", "UserItem")
+                    b.HasOne("KanbanApp.Core.Models.UserItem", "UserItem")
                         .WithMany()
                         .HasForeignKey("UserItemId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -352,20 +352,22 @@ namespace KanbanApp.Migrations
                     b.Navigation("UserItem");
                 });
 
-            modelBuilder.Entity("KanbanApp.Models.ProjectItem", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.ProjectItem", b =>
                 {
-                    b.HasOne("KanbanApp.Models.UserItem", null)
+                    b.HasOne("KanbanApp.Core.Models.UserItem", null)
                         .WithMany("Projects")
                         .HasForeignKey("UserItemId");
                 });
 
-            modelBuilder.Entity("KanbanApp.Models.TaskItem", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.TaskItem", b =>
                 {
-                    b.HasOne("KanbanApp.Models.ProjectItem", "Project")
+                    b.HasOne("KanbanApp.Core.Models.ProjectItem", "Project")
                         .WithMany("Tasks")
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("KanbanApp.Models.UserItem", "User")
+                    b.HasOne("KanbanApp.Core.Models.UserItem", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
@@ -385,7 +387,7 @@ namespace KanbanApp.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("KanbanApp.Models.UserItem", null)
+                    b.HasOne("KanbanApp.Core.Models.UserItem", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -394,7 +396,7 @@ namespace KanbanApp.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("KanbanApp.Models.UserItem", null)
+                    b.HasOne("KanbanApp.Core.Models.UserItem", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -409,7 +411,7 @@ namespace KanbanApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("KanbanApp.Models.UserItem", null)
+                    b.HasOne("KanbanApp.Core.Models.UserItem", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -418,19 +420,19 @@ namespace KanbanApp.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("KanbanApp.Models.UserItem", null)
+                    b.HasOne("KanbanApp.Core.Models.UserItem", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("KanbanApp.Models.ProjectItem", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.ProjectItem", b =>
                 {
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("KanbanApp.Models.UserItem", b =>
+            modelBuilder.Entity("KanbanApp.Core.Models.UserItem", b =>
                 {
                     b.Navigation("Projects");
                 });

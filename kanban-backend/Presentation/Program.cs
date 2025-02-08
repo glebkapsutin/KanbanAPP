@@ -6,8 +6,18 @@ using KanbanApp.Application.Interfaces;
 using KanbanApp.Infrastructure.Repositories;
 using KanbanApp.Application.Services;
 using KanbanApp.Core.Enums;
+using DevelopForum.Infastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+
+var connectionString = isDocker
+    ? builder.Configuration.GetConnectionString("DockerConnection")
+    : builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<KanbanAppDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 // Настройка Swagger для документации API
 builder.Services.AddEndpointsApiExplorer();
@@ -26,17 +36,9 @@ builder.Services.AddCors(options =>
 });
 
 // Чтение переменных окружения для настройки строки подключения к базе данных
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "glebkapustin";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "074123";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "kanbanapp_db";
 
-var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
 
-// Подключение контекста базы данных с использованием Npgsql и настроенной строки подключения
-builder.Services.AddDbContext<KanbanAppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+
 
 // Настройка Identity для работы с пользователями и ролями
 builder.Services.AddIdentity<UserItem, IdentityRole<int>>() // Добавляем Identity
@@ -53,7 +55,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 
 var app = builder.Build();
-
+DataBaseInitializer.ApplyMigrations(app.Services); 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
