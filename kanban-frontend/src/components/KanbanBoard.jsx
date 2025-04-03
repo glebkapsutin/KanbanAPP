@@ -1,97 +1,173 @@
 import React from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'; // Импортируем компоненты для drag-and-drop
-import { updateStatusTask } from '../api/TaskApi'; // Импортируем функцию для обновления статуса задачи на сервере
-import '../styles/KanbanBoard.css'; // Подключаем стили для канбан-доски
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { updateStatusTask } from '../api/TaskApi';
+import {
+  Paper,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  IconButton,
+  Tooltip,
+  Chip,
+  useTheme,
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { MoreVert, Assignment } from '@mui/icons-material';
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  height: '100%',
+  minHeight: 'calc(100vh - 100px)',
+  background: 'rgba(255, 255, 255, 0.9)',
+  backdropFilter: 'blur(10px)',
+  borderRadius: '16px',
+  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+}));
+
+const ColumnContainer = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  minHeight: 'calc(100vh - 150px)',
+  background: 'rgba(255, 255, 255, 0.7)',
+  borderRadius: '12px',
+  boxShadow: '0 4px 16px 0 rgba(31, 38, 135, 0.15)',
+}));
+
+const TaskCard = styled(Card)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  borderRadius: '8px',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 20px 0 rgba(31, 38, 135, 0.2)',
+  },
+}));
 
 const KanbanBoard = ({ tasks, setTasks }) => {
-  // Определяем статусные колонки
+  const theme = useTheme();
   const columns = {
-    To_Do: 'To Do',
-    In_Progress: 'In Progress',
-    Done: 'Done',
+    To_Do: {
+      title: 'To Do',
+      color: '#FF6B6B',
+    },
+    In_Progress: {
+      title: 'In Progress',
+      color: '#4ECDC4',
+    },
+    Done: {
+      title: 'Done',
+      color: '#45B7D1',
+    },
   };
 
-  // Отображаем статус задачи через числовые значения
   const statusMap = {
     0: 'To_Do',
     1: 'In_Progress',
     2: 'Done',
   };
 
-  // Обратная карта для статусов (используем для изменения статуса)
   const reverseStatusMap = {
     To_Do: 0,
     In_Progress: 1,
     Done: 2,
   };
 
-  // Функция, которая будет вызываться при окончании перетаскивания
   const handleDragEnd = async (result) => {
-    const { source, destination } = result; // Источник и место назначения перетаскиваемого элемента
+    const { source, destination } = result;
 
-    // Если задача не была перемещена в другое место, выходим
     if (!destination) return;
 
-    // Создаем копию массива задач, чтобы не изменять оригинальный
     const updatedTasks = [...tasks];
-    const [movedTask] = updatedTasks.splice(source.index, 1); // Удаляем перетаскиваемую задачу из списка
+    const [movedTask] = updatedTasks.splice(source.index, 1);
 
-    const newStatus = reverseStatusMap[destination.droppableId]; // Получаем новый статус из droppableId
-    console.log("New status from droppableId:", destination.droppableId, newStatus); // Логируем новый статус
+    const newStatus = reverseStatusMap[destination.droppableId];
 
-    // Отправляем запрос на сервер для обновления статуса задачи
     const updatedTask = await updateStatusTask(movedTask.id, newStatus);
 
-    // Если задача успешно обновлена на сервере
     if (updatedTask) {
-      movedTask.status = newStatus; // Обновляем статус задачи
-      updatedTasks.splice(destination.index, 0, movedTask); // Вставляем задачу обратно в новый статус
-      setTasks(updatedTasks); // Обновляем состояние задач
+      movedTask.status = newStatus;
+      updatedTasks.splice(destination.index, 0, movedTask);
+      setTasks(updatedTasks);
     } else {
-      // Если не удалось обновить статус на сервере
       console.error('Не удалось обновить задачу на сервере');
     }
   };
 
   return (
-    // Контейнер для drag-and-drop
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="kanban-board">
-        {/* Для каждой колонки создаем отдельную секцию */}
-        {Object.keys(columns).map((status) => (
-          <Droppable key={status} droppableId={status}>
-            {(provided) => (
-              <div
-                className="kanban-column"
-                ref={provided.innerRef} // Связываем элемент с драггируемым контейнером
-                {...provided.droppableProps} // Добавляем необходимые пропсы для Droppable
-              >
-                <h2>{columns[status]}</h2> {/* Заголовок колонки (например, "To Do") */}
-                
-                {/* Фильтруем задачи по статусу и отображаем только те, которые соответствуют текущей колонке */}
-                {tasks
-                  .filter((task) => statusMap[task.status] === status)
-                  .map((task, index) => (
-                    <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                      {(provided) => (
-                        <div
-                          className="kanban-task"
-                          ref={provided.innerRef} // Связываем задачу с драггируемым элементом
-                          {...provided.draggableProps} // Добавляем необходимые пропсы для Draggable
-                          {...provided.dragHandleProps} // Добавляем пропсы для перетаскивания
-                        >
-                          <h3>{task.taskName}</h3> {/* Название задачи */}
-                          <p>{task.description}</p> {/* Описание задачи */}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                {provided.placeholder} {/* Плейсхолдер для корректной работы драггирования */}
-              </div>
-            )}
-          </Droppable>
-        ))}
-      </div>
+      <StyledPaper>
+        <Box className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+          {Object.entries(columns).map(([status, { title, color }]) => (
+            <Droppable key={status} droppableId={status}>
+              {(provided) => (
+                <ColumnContainer
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  <Box className="flex items-center justify-between mb-4">
+                    <Typography
+                      variant="h6"
+                      className="font-semibold"
+                      style={{ color }}
+                    >
+                      {title}
+                    </Typography>
+                    <Chip
+                      label={tasks.filter((task) => statusMap[task.status] === status).length}
+                      size="small"
+                      style={{ backgroundColor: color, color: 'white' }}
+                    />
+                  </Box>
+
+                  {tasks
+                    .filter((task) => statusMap[task.status] === status)
+                    .map((task, index) => (
+                      <Draggable
+                        key={task.id}
+                        draggableId={task.id.toString()}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <TaskCard
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <CardContent>
+                              <Box className="flex items-start justify-between">
+                                <Box className="flex items-start space-x-2">
+                                  <Assignment className="mt-1" color="primary" />
+                                  <Box>
+                                    <Typography variant="subtitle1" className="font-medium">
+                                      {task.taskName}
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                      className="mt-1"
+                                    >
+                                      {task.description}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                                <Tooltip title="Дополнительные действия">
+                                  <IconButton size="small">
+                                    <MoreVert />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                            </CardContent>
+                          </TaskCard>
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </ColumnContainer>
+              )}
+            </Droppable>
+          ))}
+        </Box>
+      </StyledPaper>
     </DragDropContext>
   );
 };

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'; // Импортируем React и хуки useState, useEffect
-import './styles/App.css'; // Стили приложения
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainContent from './scripts/MainContent'; // Основной контент приложения
 import { fetchTasks, addTask } from './api/TaskApi'; // API для работы с задачами
 import Footer from './scripts/Footer'; // Нижний колонтитул
 import Header from './scripts/Header'; // Заголовок с кнопками
-import RegistrationWindow from './components/RegistrationWindow'; // Окно регистрации
-import LoginWindow from './components/LoginWindow'; // Окно входа
+import RegisterForm from './components/RegisterForm'; // Окно регистрации
+import LoginForm from './components/LoginForm'; // Окно входа
 import { fetchUsers } from './api/UserApi'; // API для работы с пользователями
 import { fetchProjects } from './api/ProjectApi'; // API для работы с проектами
 
@@ -14,8 +14,6 @@ const App = () => {
   // Состояния для управления данными и видимостью компонентов
   const [tasks, setTasks] = useState([]); // Состояние для хранения задач
   const [selectedProject, setSelectedProject] = useState(null); // Выбранный проект
-  const [isRegisterFormVisible, setIsRegisterFormVisible] = useState(false); // Видимость формы регистрации
-  const [isLoginFormVisible, setIsLoginFormVisible] = useState(false); // Видимость формы входа
   const [user, setUser] = useState(null); // Данные пользователя
   const [showProjects, setShowProjects] = useState(false); // Видимость списка проектов
   const [showTasks, setShowTasks] = useState(false); // Видимость задач для выбранного проекта
@@ -68,45 +66,62 @@ const App = () => {
       console.error('Ошибка при загрузке профиля пользователя:', error);
       setUser(userData); // Если ошибка, просто используем переданные данные
     }
-
-    setIsLoginFormVisible(false); // Закрываем окно входа
   };
 
   return (
-    <div className="app-container">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Заголовок приложения */}
       <Header
-        onRegisterClick={() => setIsRegisterFormVisible(true)} // Открытие окна регистрации
-        onLoginClick={() => setIsLoginFormVisible(true)} // Открытие окна входа
         user={user} // Данные о пользователе
         OnProjectsClick={handleProjectsClick} // Обработчик клика на проекты
         OnTasksClick={handleTasksClick} // Обработчик клика на задачи
       />
-      {/* Основной контент приложения, передаем необходимые пропсы */}
-      <MainContent
-        tasks={tasks}
-        setTasks={setTasks}
-        selectedProject={selectedProject}
-        setSelectedProject={setSelectedProject}
-        handleAddTask={handleAddTask}
-        showProjects={showProjects}
-        showTasks={showTasks}
-      />
+      
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <MainContent
+                tasks={tasks}
+                setTasks={setTasks}
+                selectedProject={selectedProject}
+                setSelectedProject={setSelectedProject}
+                handleAddTask={handleAddTask}
+                showProjects={showProjects}
+                showTasks={showTasks}
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              user ? (
+                <Navigate to="/" replace />
+              ) : (
+                <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+                  <LoginForm onLoginSuccess={handleLoginSuccess} />
+                </div>
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              user ? (
+                <Navigate to="/" replace />
+              ) : (
+                <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+                  <RegisterForm />
+                </div>
+              )
+            }
+          />
+        </Routes>
+      </main>
+
       {/* Нижний колонтитул */}
       <Footer />
-
-      {/* Окно регистрации */}
-      {isRegisterFormVisible && (
-        <RegistrationWindow onClose={() => setIsRegisterFormVisible(false)} />
-      )}
-
-      {/* Окно входа */}
-      {isLoginFormVisible && (
-        <LoginWindow
-          onClose={() => setIsLoginFormVisible(false)} // Закрытие окна входа
-          onLoginSuccess={handleLoginSuccess} // Обработчик успешного входа
-        />
-      )}
     </div>
   );
 };

@@ -1,96 +1,165 @@
 import { useState } from "react";
-import '../styles/App.css';
+import { useNavigate } from "react-router-dom";
+import {
+  TextField,
+  Button,
+  Paper,
+  Typography,
+  Box,
+  Alert,
+  CircularProgress,
+  InputAdornment,
+  IconButton,
+  Link,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  maxWidth: 400,
+  margin: '0 auto',
+  marginTop: theme.spacing(8),
+  background: 'rgba(255, 255, 255, 0.9)',
+  backdropFilter: 'blur(10px)',
+  borderRadius: '16px',
+  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+}));
 
 function LoginForm({ onLoginSuccess }) {
-  // Состояние для данных формы
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Обработчик изменений в полях ввода
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value, // Обновляем нужное поле в объекте formData
+      [name]: value,
     });
+    setError('');
   };
 
-  // Обработчик отправки формы
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Предотвращаем перезагрузку страницы
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
-      // Отправляем запрос на сервер для входа
       const response = await fetch('http://localhost:5291/api/Auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData), // Отправляем данные формы
+        body: JSON.stringify(formData),
       });
 
-      const data = await response.json(); // Получаем ответ от сервера
-      console.log('Ответ от сервера после входа:', data); 
+      const data = await response.json();
 
       if (response.ok) {
-        // Если ответ успешный, сохраняем данные пользователя в localStorage
         localStorage.setItem('user', JSON.stringify(data));
-        alert('Вход успешен!');
-        
-        // Логируем передаваемые данные пользователя
-        console.log('Передаваемые данные пользователя:', {
-          id: data.id || data.userId,
-          name: data.name || data.userName || 'Гость',
-          email: data.email || 'email не указан',
-        });
-
-        // Вызываем callback для обработки успешного входа
         onLoginSuccess({
           id: data.id,
           name: data.name,
           email: data.email,
         });
+        navigate('/');
       } else {
-        // Если ошибка, выводим сообщение
-        alert('Ошибка: ' + data.Message);
+        setError(data.Message || 'Ошибка при входе');
       }
     } catch (error) {
-      // Обрабатываем ошибку при запросе
-      alert('Ошибка при входе: ' + error.message);
+      setError('Ошибка при подключении к серверу');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      {/* Форма входа */}
-      <form className='register-form' onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          {/* Поле для ввода email */}
-          <input className="register-input"
-            type="string"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Пароль:</label>
-          {/* Поле для ввода пароля */}
-          <input className="register-input"
-            type="string"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Войти</button> {/* Кнопка отправки формы */}
-      </form>
-    </div>
+    <StyledPaper elevation={3}>
+      <Typography component="h1" variant="h4" className="mb-6 font-bold text-gray-800">
+        Вход в систему
+      </Typography>
+      
+      {error && (
+        <Alert severity="error" className="w-full mb-4">
+          {error}
+        </Alert>
+      )}
+
+      <Box component="form" onSubmit={handleSubmit} className="w-full">
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="email"
+          label="Email"
+          name="email"
+          autoComplete="email"
+          autoFocus
+          value={formData.email}
+          onChange={handleChange}
+          variant="outlined"
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          name="password"
+          label="Пароль"
+          type={showPassword ? 'text' : 'password'}
+          id="password"
+          autoComplete="current-password"
+          value={formData.password}
+          onChange={handleChange}
+          variant="outlined"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          size="large"
+          disabled={loading}
+          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+        >
+          {loading ? <CircularProgress size={24} /> : 'Войти'}
+        </Button>
+        
+        <Box className="mt-4 text-center">
+          <Typography variant="body2" className="text-gray-600">
+            Нет аккаунта?{' '}
+            <Link
+              component={RouterLink}
+              to="/register"
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Зарегистрироваться
+            </Link>
+          </Typography>
+        </Box>
+      </Box>
+    </StyledPaper>
   );
-} 
+}
 
 export default LoginForm;
