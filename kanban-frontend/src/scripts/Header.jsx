@@ -1,84 +1,176 @@
-import React from 'react'; // Импортируем React
-import { Link } from 'react-router-dom'; // Импортируем Link из react-router-dom
+import React from 'react';
+import { Link } from 'react-router-dom';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  IconButton,
+  Menu,
+  MenuItem,
+  Avatar,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  Dashboard as DashboardIcon,
+  Task as TaskIcon,
+  Rocket as RocketIcon,
+} from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
 
-// Компонент Header, который принимает несколько пропсов:
-// user — объект с данными текущего пользователя
-// OnTasksClick, OnProjectsClick — функции для обработки кликов на кнопки "Задачи" и "Проекты"
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+  boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+
+  marginBottom: theme.spacing(3),
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  margin: theme.spacing(0, 1),
+  color: 'white',
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+}));
+
 const Header = ({ user, OnTasksClick, OnProjectsClick }) => {
-    
-    // Функция для обработки кликов по кнопкам "Проекты" и "Задачи"
-    const handleButtonClick = (action) => {
-        if (user) { // Если пользователь авторизован
-            action(); // Выполнить переданную функцию (OnTasksClick или OnProjectsClick)
-        } else {
-            alert("Войдите в аккаунт чтобы получить доступ к этой функции"); // Если пользователь не авторизован, показать предупреждение
-        }
-    };
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
-    console.log('Данные пользователя в Header:', user); // Логируем данные пользователя для отладки
+  const handleButtonClick = (action) => {
+    if (user) {
+      action();
+    } else {
+      alert("Войдите в аккаунт чтобы получить доступ к этой функции");
+    }
+  };
 
-    return (
-        <header className="bg-white shadow-md">
-            <div className="container mx-auto px-4">
-                <div className="flex items-center justify-between h-16">
-                    {/* Логотип */}
-                    <div className="flex items-center space-x-2">
-                        <img
-                            src="/assets/icon.png" // Путь к изображению логотипа
-                            alt="Логотип"
-                            className="h-8 w-8 object-contain" // Применение стилей к изображению
-                        />
-                        <h1 className="text-xl font-bold text-gray-800">Kanban</h1> {/* Название приложения */}
-                    </div>
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-                    {/* Кнопки навигации */}
-                    <div className="flex items-center space-x-4">
-                        <div className="hidden md:flex items-center space-x-4">
-                            <button 
-                                onClick={() => handleButtonClick(OnProjectsClick)}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
-                            >
-                                Проекты {/* Кнопка для перехода к проектам */}
-                            </button>
-                            <button 
-                                onClick={() => handleButtonClick(OnTasksClick)}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
-                            >
-                                Задачи {/* Кнопка для перехода к задачам */}
-                            </button>
-                            <button className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200">
-                                Возможности {/* Кнопка для перехода к разделу "Возможности" */}
-                            </button>
-                        </div>
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-                        {/* Кнопки авторизации */}
-                        <div className="flex items-center space-x-4">
-                            {user ? ( // Если пользователь авторизован
-                                <div className="text-gray-600"> {/* Информация о пользователе */}
-                                    <span>{`Добро пожаловать, ${user.name || "Гость"}!`}</span>
-                                </div>
-                            ) : ( // Если пользователь не авторизован, отображаются кнопки входа и регистрации
-                                <>
-                                    <Link 
-                                        to="/login" 
-                                        className="px-4 py-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
-                                    >
-                                        Вход {/* Кнопка для входа в аккаунт */}
-                                    </Link>
-                                    <Link 
-                                        to="/register" 
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors duration-200"
-                                    >
-                                        Регистрация {/* Кнопка для регистрации нового пользователя */}
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-    );
+  return (
+    <StyledAppBar position="static">
+      <Toolbar className="container mx-auto">
+        <Box className="flex items-center space-x-2">
+          <img
+            src="/assets/icon.png"
+            alt="Логотип"
+            className="h-8 w-8 object-contain"
+          />
+          <Typography variant="h4" className="text-white font-bold">
+            Kanban
+          </Typography>
+        </Box>
+
+        <Box className="flex-grow" />
+
+        {!isMobile ? (
+          <Box className="flex items-center space-x-4">
+            <StyledButton
+              startIcon={<DashboardIcon />}
+              onClick={() => handleButtonClick(OnProjectsClick)}
+            >
+              Проекты
+            </StyledButton>
+            <StyledButton
+              startIcon={<TaskIcon />}
+              onClick={() => handleButtonClick(OnTasksClick)}
+            >
+              Задачи
+            </StyledButton>
+            <StyledButton
+              startIcon={<RocketIcon />}
+            >
+              Возможности
+            </StyledButton>
+
+            {user ? (
+              <Box className="flex items-center space-x-2">
+                <Avatar 
+                  alt={user.name} 
+                  src={user.avatar}
+                  className="bg-blue-200"
+                />
+                <Typography variant="body1" className="text-white">
+                  {user.name || "Гость"}
+                </Typography>
+              </Box>
+            ) : (
+              <Box className="flex items-center space-x-2">
+                <Button
+                  component={Link}
+                  to="/login"
+                  variant="outlined"
+                  className="text-white border-white hover:bg-white hover:text-blue-600"
+                >
+                  Вход
+                </Button>
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="contained"
+                  className="bg-white text-blue-600 hover:bg-blue-100"
+                >
+                  Регистрация
+                </Button>
+              </Box>
+            )}
+          </Box>
+        ) : (
+          <>
+            <IconButton
+              edge="end"
+              color="inherit"
+              aria-label="menu"
+              onClick={handleMenu}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={() => {
+                handleButtonClick(OnProjectsClick);
+                handleClose();
+              }}>
+                <DashboardIcon className="mr-2" /> Проекты
+              </MenuItem>
+              <MenuItem onClick={() => {
+                handleButtonClick(OnTasksClick);
+                handleClose();
+              }}>
+                <TaskIcon className="mr-2" /> Задачи
+              </MenuItem>
+              <MenuItem onClick={handleClose}>
+                <RocketIcon className="mr-2" /> Возможности
+              </MenuItem>
+              {!user && (
+                <>
+                  <MenuItem component={Link} to="/login" onClick={handleClose}>
+                    Вход
+                  </MenuItem>
+                  <MenuItem component={Link} to="/register" onClick={handleClose}>
+                    Регистрация
+                  </MenuItem>
+                </>
+              )}
+            </Menu>
+          </>
+        )}
+      </Toolbar>
+    </StyledAppBar>
+  );
 };
 
-export default Header; // Экспортируем компонент
+export default Header;

@@ -7,20 +7,50 @@ import {
   Paper,
   Chip,
   Box,
+  IconButton,
+  Divider,
+  Tooltip,
+  Fab,
 } from '@mui/material';
+import {
+  Add as AddIcon,
+  AccessTime as AccessTimeIcon,
+  Person as PersonIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  background: 'rgba(255, 255, 255, 0.9)',
+  backdropFilter: 'blur(10px)',
+  borderRadius: '16px',
+  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+}));
+
+const StyledListItem = styled(ListItem)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  borderRadius: '8px',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 20px 0 rgba(31, 38, 135, 0.2)',
+  },
+}));
 
 // Компонент TaskList, который принимает пропс tasks (список задач)
 const TaskList = ({ tasks }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 0:
-        return 'error'; // To Do
+        return '#FF6B6B'; // To Do
       case 1:
-        return 'warning'; // In Progress
+        return '#4ECDC4'; // In Progress
       case 2:
-        return 'success'; // Done
+        return '#45B7D1'; // Done
       default:
-        return 'default';
+        return '#9E9E9E';
     }
   };
 
@@ -38,46 +68,90 @@ const TaskList = ({ tasks }) => {
   };
 
   return (
-    <Paper className="p-6 mb-8 bg-white shadow-lg rounded-lg">
-      <Typography variant="h4" className="mb-6 font-bold text-gray-800">
-        Список задач
-      </Typography>
-      
+    <StyledPaper>
+      <Box className="flex justify-between items-center mb-6">
+        <Typography variant="h4" className="font-bold text-gray-800">
+          Список задач
+        </Typography>
+        <Fab
+          color="primary"
+          size="small"
+          aria-label="add"
+          onClick={() => {/* Обработчик добавления новой задачи */}}
+        >
+          <AddIcon />
+        </Fab>
+      </Box>
+
       {tasks && tasks.length > 0 ? (
         <List className="space-y-4">
-          {tasks.map((task) => (
-            <ListItem
-              key={task.id}
-              className="bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            >
-              <ListItemText
-                primary={
-                  <Box className="flex items-center justify-between">
+          {tasks.map((task, index) => (
+            <React.Fragment key={task.id}>
+              <StyledListItem className="bg-gray-50">
+                <Box className="w-full">
+                  <Box className="flex justify-between items-start mb-2">
                     <Typography variant="h6" className="font-semibold text-gray-800">
-                      {task.taskName}
+                      {task.name}
                     </Typography>
-                    <Chip
-                      label={getStatusText(task.status)}
-                      color={getStatusColor(task.status)}
-                      size="small"
-                    />
+                    <Box className="flex items-center space-x-2">
+                      <Chip
+                        label={getStatusText(task.status)}
+                        size="small"
+                        style={{ backgroundColor: getStatusColor(task.status), color: 'white' }}
+                      />
+                      <Tooltip title="Редактировать">
+                        <IconButton size="small">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Удалить">
+                        <IconButton size="small">
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </Box>
-                }
-                secondary={
-                  <Typography variant="body2" className="text-gray-600 mt-2">
+                  <Typography variant="body2" className="text-gray-600 mb-3">
                     {task.description}
                   </Typography>
-                }
-              />
-            </ListItem>
+                  <Box className="flex items-center justify-between">
+                    <Chip
+                      icon={<PersonIcon />}
+                      label={task.userName || 'Не назначен'}
+                      size="small"
+                      variant="outlined"
+                    />
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="flex items-center"
+                    >
+                      <AccessTimeIcon fontSize="small" className="mr-1" />
+                      {new Date(task.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                </Box>
+              </StyledListItem>
+              {index < tasks.length - 1 && <Divider />}
+            </React.Fragment>
           ))}
         </List>
       ) : (
-        <Typography variant="body1" className="text-gray-500 text-center py-8">
-          Задач пока нет
-        </Typography>
+        <Box className="text-center py-8">
+          <Typography variant="body1" className="text-gray-500 mb-4">
+            Задач пока нет
+          </Typography>
+          <Fab
+            color="primary"
+            variant="extended"
+            onClick={() => {/* Обработчик добавления новой задачи */}}
+          >
+            <AddIcon className="mr-2" />
+            Добавить задачу
+          </Fab>
+        </Box>
       )}
-    </Paper>
+    </StyledPaper>
   );
 };
 
