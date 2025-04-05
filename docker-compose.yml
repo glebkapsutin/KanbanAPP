@@ -16,7 +16,7 @@ services:
 
   backend:
     build:
-      context: ./kanban-backend
+      context: ./server
       dockerfile: Dockerfile
     ports:
       - "5291:5291"
@@ -29,7 +29,7 @@ services:
 
   frontend:
     build:
-      context: ./kanban-frontend
+      context: ./client
       dockerfile: Dockerfile
     ports:
       - "5173:80"

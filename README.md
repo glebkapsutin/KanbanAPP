@@ -154,15 +154,16 @@ dotnet ef database update
 
 4. **Запустите backend**
 ```bash
-cd kanban-backend
+cd server
 dotnet restore
 dotnet run
 ```
 
 5. **Запустите frontend**
 ```bash
-cd kanban-frontend
+cd client
 npm install
+yarn install
 npm run dev
 ```
 
