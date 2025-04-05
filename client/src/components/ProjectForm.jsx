@@ -25,7 +25,7 @@ const ProjectForm = ({ onAddProject }) => {
     <form className='form-main' onSubmit={handleSubmit}>
       {/* Поле для ввода названия проекта */}
       <input
-        className="input-main"
+        className=""
         type="text"
         placeholder="Заголовок проекта"
         value={ProjectName}

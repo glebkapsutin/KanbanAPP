@@ -1,5 +1,6 @@
 import React, { useState } from 'react'; // Импортируем React и хук useState
 import '../styles/Task.css'; // Импортируем стили для компонента
+import { Button, Input, TextField } from '@mui/material';
 
 const TaskForm = ({ onAddTask, selectedProject }) => {
   // useState - это хук, который используется для создания состояния компонента.
@@ -37,32 +38,32 @@ const TaskForm = ({ onAddTask, selectedProject }) => {
   };
 
   return (
-    <div>
-      <center> {/* Центрируем форму на странице */}
-        <form className="form-main" onSubmit={handleSubmit}> {/* Обработчик отправки формы */}
+    
+      
+        <TextField className="mt-4" onSubmit={handleSubmit}> 
           {/* Поле для ввода названия задачи */}
-          <input
-            className="input-main" // Стили для поля ввода
+          <Input
+            className="text-white" // Стили для поля ввода
             type="text" // Тип поля ввода - текст
             placeholder="Заголовок задачи" // Подсказка, что нужно ввести
             value={TaskName} // Значение поля - это состояние TaskName
             onChange={(e) => SetTaskName(e.target.value)} // При изменении значения обновляем состояние TaskName
           />
           {/* Поле для ввода описания задачи */}
-          <input
-            className="input-main" // Стили для поля ввода
+          <Input
+            className="text-white" // Стили для поля ввода
             type="text" // Тип поля ввода - текст
             placeholder="Описание задачи" // Подсказка для пользователя
             value={Description} // Значение поля - это состояние Description
             onChange={(e) => SetDescription(e.target.value)} // При изменении значения обновляем состояние Description
           />
           {/* Кнопка отправки формы */}
-          <button className="button_main" type="submit">
+          <Button className="mt-4 text-white shadow-md ">
             Добавить задачу {/* Текст на кнопке */}
-          </button>
-        </form>
-      </center>
-    </div>
+          </Button>
+        </TextField>
+     
+    
   );
 };
 
