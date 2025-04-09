@@ -8,8 +8,8 @@ namespace KanbanApp.Application.Interfaces
         Task<IEnumerable<TaskItem>> GetTaskAsync();
         Task<TaskItem?> GetTaskIdAsync(int id);
         Task<TaskItem> AddTaskAsync(TaskItem taskItem);
-        Task TaskDeleteAsync(int id,string currentUserId);
-        Task TaskUpdateAsync(int id, TaskItem taskItem,string currentUserId);
+        Task TaskDeleteAsync(int id);
+        Task TaskUpdateAsync(int id, TaskItem taskItem);
         Task<IEnumerable<TaskItem>> GetProjectTasks(int projectId);
         Task<IEnumerable<TaskItem>> GetMyTasks(string userId);
         Task<IEnumerable<TaskItem>> FiltrationTaskStatus(Task_Status status);

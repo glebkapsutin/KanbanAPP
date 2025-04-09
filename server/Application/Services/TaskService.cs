@@ -45,7 +45,7 @@ namespace KanbanApp.Application.Services
             return taskItem;
         }
 
-        public async Task TaskDeleteAsync(int id, string currentUserId)
+        public async Task TaskDeleteAsync(int id)
         {
             var taskItem = await _taskRepository.GetTaskByIdAsync(id);
             if (taskItem == null)
@@ -53,26 +53,20 @@ namespace KanbanApp.Application.Services
                 throw new KeyNotFoundException("Task not found.");
             }
 
-            if (!IsTaskOwnedByCurrentUser(taskItem, currentUserId))
-            {
-                throw new UnauthorizedAccessException("This is not your task.");
-            }
+            
 
             await _taskRepository.DeleteTaskAsync(taskItem);
             
         }
 
-       public async Task TaskUpdateAsync(int id, TaskItem taskItem, string currentUserId)
+       public async Task TaskUpdateAsync(int id, TaskItem taskItem)
         {
             if (id != taskItem.Id)
             {
                 throw new ArgumentException("Task ID mismatch.");
             }
 
-            if (!IsTaskOwnedByCurrentUser(taskItem, currentUserId))
-            {
-                throw new UnauthorizedAccessException();
-            }
+           
 
             if (taskItem.Deadline.HasValue && taskItem.Deadline < DateTime.Now)
             {

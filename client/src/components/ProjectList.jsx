@@ -15,6 +15,47 @@ import {
   Folder as FolderIcon,
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+
+const StyledListItemButton = styled(ListItemButton)(({ theme, selected }) => ({
+  borderRadius: '12px',
+  transition: 'all 0.3s ease',
+  backdropFilter: 'blur(8px)',
+  backgroundColor: selected 
+    ? theme.palette.mode === 'dark'
+      ? 'rgba(25, 118, 210, 0.15)'
+      : 'rgba(25, 118, 210, 0.08)'
+    : 'transparent',
+  '&:hover': {
+    backgroundColor: theme.palette.mode === 'dark'
+      ? 'rgba(255, 255, 255, 0.08)'
+      : 'rgba(0, 0, 0, 0.04)',
+  },
+}));
+
+const ProjectTitle = styled(Typography)(({ theme, selected }) => ({
+  fontSize: '1.25rem',
+  fontWeight: 600,
+  marginBottom: theme.spacing(0.5),
+  color: selected
+    ? theme.palette.primary.main
+    : theme.palette.mode === 'dark'
+      ? theme.palette.common.white
+      : theme.palette.grey[900],
+}));
+
+const ProjectDescription = styled(Typography)(({ theme }) => ({
+  fontSize: '0.95rem',
+  lineHeight: 1.6,
+  color: theme.palette.mode === 'dark'
+    ? theme.palette.grey[400]
+    : theme.palette.grey[700],
+  '&:hover': {
+    color: theme.palette.mode === 'dark'
+      ? theme.palette.grey[300]
+      : theme.palette.grey[900],
+  },
+}));
 
 // Компонент для отображения списка проектов
 const ProjectList = ({ projects, onSelectProject, selectedProject }) => {
@@ -26,17 +67,10 @@ const ProjectList = ({ projects, onSelectProject, selectedProject }) => {
       <List className="space-y-2">
         {projects.map((project) => (
           <Zoom in={true} timeout={300} key={project.id}>
-            <ListItem
-              disablePadding
-              className="mb-2"
-            >
-              <ListItemButton
+            <ListItem disablePadding className="mb-2">
+              <StyledListItemButton
                 onClick={() => onSelectProject(project.id)}
-                className={`rounded-lg transition-all duration-300 backdrop-blur-sm bg-opacity-80 ${
-                  selectedProject === project.id
-                    ? 'bg-primary bg-opacity-10'
-                    : 'hover:bg-gray-100'
-                }`}
+                selected={selectedProject === project.id}
               >
                 <ListItemIcon>
                   <FolderIcon
@@ -49,24 +83,14 @@ const ProjectList = ({ projects, onSelectProject, selectedProject }) => {
                 </ListItemIcon>
                 <ListItemText
                   primary={
-                    <Typography
-                      variant="subtitle1"
-                      className={`font-medium ${
-                        selectedProject === project.id
-                          ? 'text-primary'
-                          : 'text-gray-800'
-                      }`}
-                    >
+                    <ProjectTitle selected={selectedProject === project.id}>
                       {project.name}
-                    </Typography>
+                    </ProjectTitle>
                   }
                   secondary={
-                    <Typography
-                      variant="body2"
-                      className="text-gray-600"
-                    >
+                    <ProjectDescription>
                       {project.description}
-                    </Typography>
+                    </ProjectDescription>
                   }
                 />
                 {selectedProject === project.id && (
@@ -78,7 +102,7 @@ const ProjectList = ({ projects, onSelectProject, selectedProject }) => {
                     className="ml-2"
                   />
                 )}
-              </ListItemButton>
+              </StyledListItemButton>
             </ListItem>
           </Zoom>
         ))}

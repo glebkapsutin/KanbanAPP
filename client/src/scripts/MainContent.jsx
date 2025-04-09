@@ -134,6 +134,7 @@ const MainContent = ({
                 <Box className={viewMode === "list" ? "block" : "hidden"}>
                   <TaskList
                     tasks={tasks.filter((task) => task.projectId === selectedProject)}
+                    setTasks={setTasks}
                     showNotification={showNotification}
                   />
                 </Box>

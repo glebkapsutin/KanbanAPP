@@ -72,23 +72,17 @@ namespace KanbanApp.Presentation.Controllers
             }
         }
 
-        [Authorize]
+       
         [HttpDelete("{id}")]
        
         public async Task<ActionResult> DeleteTask(int id)
         {
             try
             {
-                // Получаем текущего пользователя (например, из токена)
-                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (string.IsNullOrEmpty(currentUserId))
-                {
-                    return Unauthorized("User not authenticated.");
-                }
+                
 
                 // Вызываем метод сервиса для удаления задачи
-                await _taskService.TaskDeleteAsync(id, currentUserId);
+                await _taskService.TaskDeleteAsync(id);
 
                 // Возвращаем статус 204 (No Content) при успешном удалении
                 return NoContent();
@@ -98,11 +92,7 @@ namespace KanbanApp.Presentation.Controllers
                 // Задача не найдена
                 return NotFound(ex.Message);
             }
-            catch (UnauthorizedAccessException ex)
-            {
-                // Пользователь не имеет права удалять задачу
-                return Forbid(ex.Message);
-            }
+           
             catch (Exception ex)
             {
                 // Обработка других ошибок
@@ -111,7 +101,7 @@ namespace KanbanApp.Presentation.Controllers
         }
 
 
-        [Authorize]
+      
         [HttpPut("{id}")]
 
         public async Task<ActionResult> PutTask(int id, [FromBody] TaskItem taskItem)
@@ -119,15 +109,10 @@ namespace KanbanApp.Presentation.Controllers
             try
             {
                 // Получаем ID текущего пользователя (например, из токена)
-                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (currentUserId == null)
-                {
-                    return Unauthorized("User is not authenticated.");
-                }
+               
 
                 // Вызываем метод сервиса для обновления задачи
-                await _taskService.TaskUpdateAsync(id, taskItem, currentUserId);
+                await _taskService.TaskUpdateAsync(id, taskItem);
 
                 return NoContent(); // Успешное обновление, без содержимого
             }
@@ -136,11 +121,7 @@ namespace KanbanApp.Presentation.Controllers
                 // Возвращаем 400, если возникли ошибки в данных задачи
                 return BadRequest(ex.Message);
             }
-            catch (UnauthorizedAccessException)
-            {
-                // Возвращаем 403, если пользователь не владеет задачей
-                return Forbid("You cannot modify tasks that don't belong to you.");
-            }
+           
             catch (KeyNotFoundException)
             {
                 // Возвращаем 404, если задача не найдена

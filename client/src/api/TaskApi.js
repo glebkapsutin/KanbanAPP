@@ -73,13 +73,42 @@ export const addTask = async (newTask, tasks, setTasks) => {
     throw error;
   }
 };
-export const deleteTask = async(tasks,setTasks) =>{
-  const response = await fetch(`${BaseUrl}/Task`, {
-    method: 'DELETE',
-    headers: {
-      "Content-Type": "application/json"
-    },
+export const deleteTask = async (taskId) => {
+  try {
+    const response = await fetch(`${BaseUrl}/Task/${taskId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
 
-  });
+    if (!response.ok) {
+      throw new Error(`Ошибка при удалении задачи: ${response.status}`);
+    }
 
-}
+    return true; // Возвращаем успех
+  } catch (error) {
+    console.error('Ошибка при удалении задачи:', error);
+    throw error;
+  }
+};
+export const updateTask = async (taskId, updatedTask) => {
+  try {
+    const response = await fetch(`${BaseUrl}/Task/${taskId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedTask)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ошибка при обновлении задачи: ${response.status}`);
+    }
+
+    return true; // Возвращаем успех
+  } catch (error) {
+    console.error('Ошибка при обновлении задачи:', error);
+    throw error;
+  }
+};

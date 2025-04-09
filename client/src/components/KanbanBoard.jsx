@@ -8,25 +8,13 @@ import {
   Card,
   CardContent,
   IconButton,
-  Tooltip,
   Chip,
   useTheme,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  MenuItem,
-  Fab,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
   MoreVert,
   Assignment,
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
   AccessTime as AccessTimeIcon,
   Person as PersonIcon,
   CheckCircle as CheckCircleIcon,
@@ -57,10 +45,8 @@ const ColumnContainer = styled(Box)(({ theme }) => ({
 const TaskCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   borderRadius: '8px',
-  transition: 'all 0.3s ease',
   cursor: 'grab',
   '&:hover': {
-    transform: 'translateY(-2px)',
     boxShadow: '0 4px 20px 0 rgba(31, 38, 135, 0.2)',
   },
   '&:active': {
@@ -68,24 +54,52 @@ const TaskCard = styled(Card)(({ theme }) => ({
   },
 }));
 
+const DraggableTaskCard = styled(Card)(({ theme, isDragging }) => ({
+  position: 'relative',
+  userSelect: 'none',
+  padding: theme.spacing(2),
+  margin: `0 0 ${theme.spacing(2)} 0`,
+  minHeight: '50px',
+  borderRadius: '8px',
+  background: isDragging 
+    ? theme.palette.mode === 'dark' 
+      ? theme.palette.grey[800] 
+      : theme.palette.background.paper
+    : theme.palette.mode === 'dark'
+      ? theme.palette.grey[900]
+      : theme.palette.background.default,
+  boxShadow: isDragging 
+    ? '0 8px 24px rgba(0, 0, 0, 0.25)' 
+    : '0 2px 8px rgba(0, 0, 0, 0.08)',
+  transform: isDragging ? 'rotate(1deg)' : 'rotate(0)',
+  transition: 'background-color 0.2s ease, transform 0.2s ease',
+  '&:hover': {
+    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12)',
+  },
+  '& .MuiTypography-root': {
+    color: theme.palette.mode === 'dark' ? theme.palette.common.white : 'inherit',
+  },
+  '& .MuiTypography-secondary': {
+    color: theme.palette.mode === 'dark' ? theme.palette.grey[400] : theme.palette.text.secondary,
+  },
+}));
+
 const KanbanBoard = ({ tasks, setTasks }) => {
   const theme = useTheme();
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const [selectedTask, setSelectedTask] = React.useState(null);
 
   const columns = {
     To_Do: {
-      title: 'To Do',
+      title: 'К выполнению',
       color: '#FF6B6B',
       icon: <RadioButtonUncheckedIcon />,
     },
     To_Progress: {
-      title: 'In Progress',
+      title: 'В работе',
       color: '#4ECDC4',
       icon: <Assignment />,
     },
     Done: {
-      title: 'Done',
+      title: 'Готово',
       color: '#45B7D1',
       icon: <CheckCircleIcon />,
     },
@@ -105,33 +119,22 @@ const KanbanBoard = ({ tasks, setTasks }) => {
 
   const handleDragEnd = async (result) => {
     const { source, destination } = result;
-
     if (!destination) return;
 
-    const updatedTasks = [...tasks];
+    const updatedTasks = Array.from(tasks);
     const [movedTask] = updatedTasks.splice(source.index, 1);
-
     const newStatus = reverseStatusMap[destination.droppableId];
 
-    const updatedTask = await updateStatusTask(movedTask.id, newStatus);
-
-    if (updatedTask) {
-      movedTask.status = newStatus;
-      updatedTasks.splice(destination.index, 0, movedTask);
-      setTasks(updatedTasks);
-    } else {
-      console.error('Не удалось обновить задачу на сервере');
+    try {
+      const updatedTask = await updateStatusTask(movedTask.id, newStatus);
+      if (updatedTask) {
+        movedTask.status = newStatus;
+        updatedTasks.splice(destination.index, 0, movedTask);
+        setTasks(updatedTasks);
+      }
+    } catch (error) {
+      console.error('Ошибка при обновлении статуса задачи:', error);
     }
-  };
-
-  const handleTaskClick = (task) => {
-    setSelectedTask(task);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setSelectedTask(null);
   };
 
   const getAssigneeName = (task) => {
@@ -146,96 +149,113 @@ const KanbanBoard = ({ tasks, setTasks }) => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <StyledPaper>
-        <Box className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+        <Box className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Object.entries(columns).map(([status, { title, color, icon }]) => (
             <Droppable key={status} droppableId={status}>
-              {(provided) => (
+              {(provided, snapshot) => (
                 <ColumnContainer
                   ref={provided.innerRef}
                   {...provided.droppableProps}
+                  style={{
+                    backgroundColor: snapshot.isDraggingOver 
+                      ? 'rgba(255, 255, 255, 0.9)' 
+                      : 'rgba(255, 255, 255, 0.7)',
+                  }}
                 >
                   <Box className="flex items-center justify-between mb-4">
                     <Box className="flex items-center space-x-2">
                       {React.cloneElement(icon, { style: { color } })}
-                      <Typography
-                        variant="h6"
-                        className="font-semibold"
-                        style={{ color }}
-                      >
+                      <Typography variant="h6" className="font-semibold" style={{ color }}>
                         {title}
                       </Typography>
                     </Box>
                     <Chip
-                      label={tasks.filter((task) => statusMap[task.status] === status).length}
+                      label={tasks.filter(task => statusMap[task.status] === status).length}
                       size="small"
                       style={{ backgroundColor: color, color: 'white' }}
                     />
                   </Box>
 
-                  <Box className="space-y-3">
+                  <Box>
                     {tasks
-                      .filter((task) => statusMap[task.status] === status)
+                      .filter(task => statusMap[task.status] === status)
                       .map((task, index) => (
                         <Draggable
                           key={task.id}
                           draggableId={task.id.toString()}
                           index={index}
                         >
-                          {(provided) => (
-                            <TaskCard
+                          {(provided, snapshot) => (
+                            <DraggableTaskCard
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              onClick={() => handleTaskClick(task)}
+                              isDragging={snapshot.isDragging}
+                              style={{
+                                ...provided.draggableProps.style,
+                                transform: snapshot.isDragging 
+                                  ? `${provided.draggableProps.style?.transform} translate(-50%, -50%)`
+                                  : 'none',
+                                transformOrigin: 'center',
+                              }}
                             >
-                              <CardContent>
-                                <Box className="flex justify-between items-start mb-2">
-                                  <Typography variant="h6" className="font-medium">
-                                    {task.taskName}
-                                  </Typography>
-                                  <IconButton size="small">
-                                    <MoreVert />
-                                  </IconButton>
-                                </Box>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  className="mb-3"
-                                >
-                                  {task.description.split('\n')[0]}
+                              <Box className="flex justify-between items-start mb-2">
+                                <Typography variant="h6" className="font-medium">
+                                  {task.taskName}
                                 </Typography>
-                                <Box className="flex items-center justify-between">
-                                  <Box className="flex items-center space-x-2">
+                                <IconButton size="small">
+                                  <MoreVert />
+                                </IconButton>
+                              </Box>
+                              
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                className="mb-3"
+                              >
+                                {task.description?.split('\n')[0]}
+                              </Typography>
+
+                              <Box className="flex items-center justify-between">
+                                <Box className="flex items-center space-x-2">
+                                  <Chip
+                                    icon={<PersonIcon />}
+                                    label={getAssigneeName(task)}
+                                    size="small"
+                                    variant="outlined"
+                                  />
+                                  {task.priority !== null && (
                                     <Chip
-                                      icon={<PersonIcon />}
-                                      label={getAssigneeName(task)}
+                                      label={
+                                        task.priority === 0 
+                                          ? 'Низкий' 
+                                          : task.priority === 1 
+                                            ? 'Средний' 
+                                            : 'Высокий'
+                                      }
                                       size="small"
-                                      variant="outlined"
+                                      color={
+                                        task.priority === 0 
+                                          ? 'success' 
+                                          : task.priority === 1 
+                                            ? 'warning' 
+                                            : 'error'
+                                      }
                                     />
-                                    {task.priority !== null && (
-                                      <Chip
-                                        label={task.priority === 0 ? 'Низкий' : task.priority === 1 ? 'Средний' : 'Высокий'}
-                                        size="small"
-                                        color={task.priority === 0 ? 'success' : task.priority === 1 ? 'warning' : 'error'}
-                                      />
-                                    )}
-                                  </Box>
-                                  {task.deadline && (
-                                    <Typography
-                                      variant="caption"
-                                      color="text.secondary"
-                                      className="flex items-center"
-                                    >
-                                      <AccessTimeIcon
-                                        fontSize="small"
-                                        className="mr-1"
-                                      />
-                                      {new Date(task.deadline).toLocaleDateString('ru-RU')}
-                                    </Typography>
                                   )}
                                 </Box>
-                              </CardContent>
-                            </TaskCard>
+                                {task.deadline && (
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    className="flex items-center"
+                                  >
+                                    <AccessTimeIcon fontSize="small" className="mr-1" />
+                                    {new Date(task.deadline).toLocaleDateString('ru-RU')}
+                                  </Typography>
+                                )}
+                              </Box>
+                            </DraggableTaskCard>
                           )}
                         </Draggable>
                       ))}
@@ -246,8 +266,6 @@ const KanbanBoard = ({ tasks, setTasks }) => {
             </Droppable>
           ))}
         </Box>
-
-       
       </StyledPaper>
     </DragDropContext>
   );

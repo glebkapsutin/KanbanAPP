@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   List,
   ListItem,
@@ -13,6 +13,13 @@ import {
   MenuItem,
   Fade,
   Zoom,
+  useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
@@ -23,10 +30,33 @@ import {
   AccessTime as AccessTimeIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+import TaskEditForm from './TaskEditForm';
+import { deleteTask, updateTask } from '../api/TaskApi';
 
-const TaskList = ({ tasks, onEditTask, onDeleteTask, onStatusChange }) => {
+const StyledTaskTitle = styled(Typography)(({ theme }) => ({
+  fontSize: '1.1rem',
+  fontWeight: 500,
+  color: theme.palette.mode === 'dark' 
+    ? theme.palette.common.white 
+    : theme.palette.grey[900],
+}));
+
+const StyledTaskDescription = styled(Typography)(({ theme }) => ({
+  fontSize: '0.95rem',
+  lineHeight: 1.6,
+  color: theme.palette.mode === 'dark' 
+    ? theme.palette.grey[400] 
+    : theme.palette.grey[700],
+  marginBottom: theme.spacing(1),
+}));
+
+const TaskList = ({ tasks, setTasks, showNotification }) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedTask, setSelectedTask] = React.useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
 
   const handleMenuOpen = (event, task) => {
     setAnchorEl(event.currentTarget);
@@ -35,7 +65,52 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onStatusChange }) => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleEditClick = () => {
+    setIsEditFormOpen(true);
+    handleMenuClose();
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
     setSelectedTask(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteTask(selectedTask.id);
+      
+      // Обновляем список задач локально после удаления
+      setTasks(tasks.filter(task => task.id !== selectedTask.id));
+      
+      showNotification('Задача успешно удалена', 'success');
+    } catch (error) {
+      showNotification(`Ошибка при удалении задачи: ${error.message}`, 'error');
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setSelectedTask(null);
+    }
+  };
+
+  const handleSaveTask = async (updatedTask) => {
+    try {
+      await updateTask(updatedTask.id, updatedTask);
+      
+      // Обновляем список задач локально
+      setTasks(tasks.map(task => 
+        task.id === updatedTask.id ? updatedTask : task
+      ));
+      
+      showNotification('Задача успешно обновлена', 'success');
+    } catch (error) {
+      showNotification(`Ошибка при обновлении задачи: ${error.message}`, 'error');
+    }
   };
 
   const getStatusIcon = (status) => {
@@ -106,22 +181,18 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onStatusChange }) => {
                   <ListItemText
                     primary={
                       <Box className="flex items-center justify-between">
-                        <Typography
-                          variant="subtitle1"
-                          className="font-medium text-gray-800"
-                        >
+                        <StyledTaskTitle>
                           {task.taskName}
-                        </Typography>
+                        </StyledTaskTitle>
                         {task.deadline && (
                           <Typography
                             variant="caption"
-                            color="text.secondary"
-                            className="flex items-center ml-2"
+                            sx={{
+                              color: theme.palette.mode === 'dark' 
+                                ? theme.palette.grey[400] 
+                                : theme.palette.text.secondary
+                            }}
                           >
-                            <AccessTimeIcon
-                              fontSize="small"
-                              className="mr-1"
-                            />
                             {new Date(task.deadline).toLocaleDateString('ru-RU')}
                           </Typography>
                         )}
@@ -129,25 +200,29 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onStatusChange }) => {
                     }
                     secondary={
                       <Box>
-                        <Typography
-                          variant="body2"
-                          className="text-gray-600"
-                        >
-                          {task.description.split('\n')[0]}
-                        </Typography>
-                        <Box className="flex items-center mt-2 space-x-2">
+                        <StyledTaskDescription>
+                          {task.description?.split('\n')[0]}
+                        </StyledTaskDescription>
+                        <Box className="flex items-center mt-1">
                           <Chip
                             icon={<PersonIcon />}
                             label={getAssigneeName(task)}
                             size="small"
                             variant="outlined"
-                            className="mr-2"
+                            sx={{
+                              marginRight: 1,
+                              '& .MuiChip-label': {
+                                color: theme.palette.mode === 'dark' 
+                                  ? theme.palette.grey[300] 
+                                  : theme.palette.text.primary
+                              }
+                            }}
                           />
                           {task.priority !== null && (
                             <Chip
-                              label={task.priority === 0 ? 'Низкий' : task.priority === 1 ? 'Средний' : task.priority === 2 ? 'Высокий' : ''}
+                              label={task.priority === 0 ? 'Низкий' : task.priority === 1 ? 'Средний' : 'Высокий'}
                               size="small"
-                              color={task.priority === 0 ? 'success' : task.priority === 1 ? 'warning' : task.priority === 2 ? 'error' : 'default'}
+                              color={task.priority === 0 ? 'success' : task.priority === 1 ? 'warning' : 'error'}
                             />
                           )}
                         </Box>
@@ -187,26 +262,53 @@ const TaskList = ({ tasks, onEditTask, onDeleteTask, onStatusChange }) => {
         }}
       >
         <MenuItem
-          onClick={() => {
-            onEditTask(selectedTask);
-            handleMenuClose();
-          }}
+          onClick={handleEditClick}
           className="flex items-center space-x-2"
         >
           <EditIcon className="text-primary" />
           <Typography>Редактировать</Typography>
         </MenuItem>
         <MenuItem
-          onClick={() => {
-            onDeleteTask(selectedTask);
-            handleMenuClose();
-          }}
+          onClick={handleDeleteClick}
           className="flex items-center space-x-2 text-red-500"
         >
           <DeleteIcon />
           <Typography>Удалить</Typography>
         </MenuItem>
       </Menu>
+
+      {/* Диалог подтверждения удаления */}
+      <Dialog
+        open={isDeleteDialogOpen}
+        onClose={handleDeleteCancel}
+        PaperProps={{
+          className: "rounded-xl",
+        }}
+      >
+        <DialogTitle>Подтверждение удаления</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Вы уверены, что хотите удалить задачу "{selectedTask?.taskName}"?
+            Это действие нельзя будет отменить.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} color="primary">
+            Отмена
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
+            Удалить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Форма редактирования задачи */}
+      <TaskEditForm
+        open={isEditFormOpen}
+        onClose={() => setIsEditFormOpen(false)}
+        onSaveTask={handleSaveTask}
+        task={selectedTask}
+      />
     </Box>
   );
 };
