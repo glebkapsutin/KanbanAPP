@@ -134,6 +134,15 @@ const KanbanBoard = ({ tasks, setTasks }) => {
     setSelectedTask(null);
   };
 
+  const getAssigneeName = (task) => {
+    if (task.user?.name) return task.user.name;
+    if (task.description) {
+      const match = task.description.match(/Исполнитель: (.*?)(?:\n|$)/);
+      if (match) return match[1];
+    }
+    return 'Не назначен';
+  };
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <StyledPaper>
@@ -193,13 +202,13 @@ const KanbanBoard = ({ tasks, setTasks }) => {
                                   color="text.secondary"
                                   className="mb-3"
                                 >
-                                  {task.description}
+                                  {task.description.split('\n')[0]}
                                 </Typography>
                                 <Box className="flex items-center justify-between">
                                   <Box className="flex items-center space-x-2">
                                     <Chip
                                       icon={<PersonIcon />}
-                                      label={task.user?.name || 'Не назначен'}
+                                      label={getAssigneeName(task)}
                                       size="small"
                                       variant="outlined"
                                     />

@@ -47,7 +47,8 @@ export const addTask = async (newTask, tasks, setTasks) => {
       priority: newTask.priority,
       deadline: newTask.deadline,
       projectId: newTask.projectId,
-      userId: newTask.userId,
+      userId: newTask.userId || 1, // Используем переданный userId или 1 по умолчанию
+      assigneeName: newTask.assigneeName || 'Не назначен', // Добавляем имя исполнителя
       createdTask: new Date().toISOString()
     };
 

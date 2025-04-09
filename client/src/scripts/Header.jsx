@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -36,10 +36,11 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const Header = ({ user, OnTasksClick, OnProjectsClick }) => {
+const Header = ({ user, OnTasksClick, OnProjectsClick, OnFeaturesClick }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = React.useState(null);
+
 
   const handleButtonClick = (action) => {
     if (user) {
@@ -89,6 +90,7 @@ const Header = ({ user, OnTasksClick, OnProjectsClick }) => {
             </StyledButton>
             <StyledButton
               startIcon={<RocketIcon />}
+              onClick={() => handleButtonClick(OnFeaturesClick)}
             >
               Возможности
             </StyledButton>
@@ -152,7 +154,10 @@ const Header = ({ user, OnTasksClick, OnProjectsClick }) => {
               }}>
                 <TaskIcon className="mr-2" /> Задачи
               </MenuItem>
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={() => {
+                handleButtonClick(OnFeaturesClick);
+                handleClose();
+              }}>
                 <RocketIcon className="mr-2" /> Возможности
               </MenuItem>
               {!user && (

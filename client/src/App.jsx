@@ -10,6 +10,7 @@ import Footer from './scripts/Footer'; // Нижний колонтитул
 import Header from './scripts/Header'; // Заголовок с кнопками
 import RegisterForm from './components/RegisterForm'; // Окно регистрации
 import LoginForm from './components/LoginForm'; // Окно входа
+import Features from './components/Features'; // Страница возможностей
 import { fetchUsers } from './api/UserApi'; // API для работы с пользователями
 import { fetchProjects } from './api/ProjectApi'; // API для работы с проектами
 
@@ -93,15 +94,24 @@ const App = () => {
 
   // Функции для управления видимостью проектов и задач
   const handleProjectsClick = () => {
-    setShowProjects(true); // Отображаем проекты
-    setShowTasks(false); // Скрываем задачи
+    setShowProjects(true);
+    setShowTasks(false);
+    navigate('/');
     console.log('Перейти к проектам');
   };
 
   const handleTasksClick = () => {
-    setShowProjects(true); // Отображаем проекты
-    setShowTasks(true); // Отображаем задачи
+    setShowProjects(true);
+    setShowTasks(true);
+    navigate('/');
     console.log('Перейти к задачам');
+  };
+
+  const handleFeaturesClick = () => {
+    setShowProjects(false);
+    setShowTasks(false);
+    navigate('/features');
+    console.log('Перейти к возможностям');
   };
 
   // Эффект для загрузки задач при изменении пользователя или выбранного проекта
@@ -166,6 +176,7 @@ const App = () => {
           user={user} // Данные о пользователе
           OnProjectsClick={handleProjectsClick} // Обработчик клика на проекты
           OnTasksClick={handleTasksClick} // Обработчик клика на задачи
+          OnFeaturesClick={handleFeaturesClick} // Обработчик клика на возможности
         />
         
         <Box component="main" className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
@@ -208,6 +219,10 @@ const App = () => {
                   </Box>
                 )
               }
+            />
+            <Route
+              path="/features"
+              element={<Features />}
             />
           </Routes>
         </Box>

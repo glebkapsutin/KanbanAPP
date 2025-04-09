@@ -39,7 +39,7 @@ const TaskForm = ({ open, onClose, onAddTask, selectedProject }) => {
     status: 'To_Do',
     priority: 'Low',
     dueDate: null,
-    assignee: 'Текущий пользователь',
+    assignee: '',
   });
 
   const handleChange = (e) => {
@@ -61,12 +61,12 @@ const TaskForm = ({ open, onClose, onAddTask, selectedProject }) => {
     e.preventDefault();
     const taskData = {
       taskName: formData.name,
-      description: formData.description,
+      description: formData.description + (formData.assignee ? `\nИсполнитель: ${formData.assignee}` : ''),
       status: formData.status === 'To_Do' ? 0 : formData.status === 'To_Progress' ? 1 : 2,
       priority: formData.priority === 'Low' ? 0 : formData.priority === 'Medium' ? 1 : 2,
       deadline: formData.dueDate,
       projectId: selectedProject,
-      userId: 1 // Устанавливаем пользователя по умолчанию
+      userId: 1,
     };
     onAddTask(taskData);
     setFormData({
@@ -75,7 +75,7 @@ const TaskForm = ({ open, onClose, onAddTask, selectedProject }) => {
       status: 'To_Do',
       priority: 'Low',
       dueDate: null,
-      assignee: 'Текущий пользователь', // Устанавливаем имя пользователя по умолчанию
+      assignee: '',
     });
     onClose();
   };
@@ -227,6 +227,7 @@ const TaskForm = ({ open, onClose, onAddTask, selectedProject }) => {
                     </InputAdornment>
                   ),
                 }}
+                placeholder="Введите имя исполнителя"
               />
             </Grid>
           </Grid>
