@@ -1,8 +1,30 @@
-import React from "react"; // Импортируем React
-import Projects from "../components/Projects"; // Импорт компонента для отображения проектов
-import TaskForm from "../components/TaskForm"; // Импорт формы для добавления задач
-import TaskList from "../components/TaskList"; // Импорт компонента для отображения списка задач
-import KanbanBoard from "../components/KanbanBoard"; // Импорт доски Kanban
+import React, { useState } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  Tabs,
+  Tab,
+  Fade,
+  Zoom,
+  Fab,
+  SpeedDial,
+  SpeedDialIcon,
+  SpeedDialAction,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import {
+  ViewKanban as ViewKanbanIcon,
+  ViewList as ViewListIcon,
+  Add as AddIcon,
+  Assignment as AssignmentIcon,
+  ViewModule as ViewModuleIcon,
+} from "@mui/icons-material";
+import Projects from "../components/Projects";
+import TaskForm from "../components/TaskForm";
+import TaskList from "../components/TaskList";
+import KanbanBoard from "../components/KanbanBoard";
 
 // Основной компонент, который принимает пропсы:
 // tasks — список задач
@@ -12,43 +34,155 @@ import KanbanBoard from "../components/KanbanBoard"; // Импорт доски 
 // showProjects — флаг для отображения списка проектов
 // showTasks — флаг для отображения задач
 // setTasks — функция для обновления списка задач
+// showNotification — флаг для отображения уведомления
 const MainContent = ({
-    tasks,
-    selectedProject,
-    setSelectedProject,
-    handleAddTask,
-    showProjects,
-    showTasks,
-    setTasks,
+  tasks,
+  selectedProject,
+  setSelectedProject,
+  handleAddTask,
+  showProjects,
+  showTasks,
+  setTasks,
+  showNotification,
 }) => {
-    return (
-        <main> {/* Основной контейнер для контента */}
-            {/* Если нужно показать список проектов */}
-            {showProjects && (
-                <Projects
-                    onSelectProject={setSelectedProject} // Передаем функцию для изменения выбранного проекта
-                    selectedProject={selectedProject} // Передаем текущий выбранный проект
+  const [viewMode, setViewMode] = useState("kanban");
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const actions = [
+    { icon: <AssignmentIcon />, name: "Новая задача", action: () => setIsTaskFormOpen(true) },
+    { icon: <ViewKanbanIcon />, name: "Канбан", action: () => setViewMode("kanban") },
+    { icon: <ViewListIcon />, name: "Список", action: () => setViewMode("list") },
+  ];
+
+  const handleCloseTaskForm = () => {
+    setIsTaskFormOpen(false);
+  };
+
+  const handleViewChange = (event, newValue) => {
+    setViewMode(newValue);
+  };
+
+  return (
+    <Box className="space-y-6">
+      {showProjects && (
+        <Fade in={showProjects} timeout={500}>
+          <Paper className="p-6 backdrop-blur-sm bg-opacity-80">
+          
+            <Projects
+              onSelectProject={setSelectedProject}
+              selectedProject={selectedProject}
+              showNotification={showNotification}
+            />
+          </Paper>
+        </Fade>
+      )}
+
+      {selectedProject && showTasks && (
+        <Box className="space-y-6">
+          <Fade in={true} timeout={500}>
+            <Paper className="p-4 backdrop-blur-sm bg-opacity-80">
+              <Box className="flex justify-between items-center mb-4">
+                <Typography 
+                  variant="h5" 
+                  className="font-semibold"
+                  sx={{
+                    background: theme.palette.mode === 'dark' 
+                      ? 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)'
+                      : 'linear-gradient(45deg, #1976D2 30%, #21CBF3 90%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  Задачи проекта
+                </Typography>
+                {!isMobile && (
+                  <Box className="flex items-center space-x-2">
+                    <Tabs
+                      value={viewMode}
+                      onChange={handleViewChange}
+                      className="bg-opacity-50"
+                    >
+                      <Tab
+                        icon={<ViewKanbanIcon />}
+                        label="Канбан"
+                        value="kanban"
+                        className="transition-all duration-200"
+                      />
+                      <Tab
+                        icon={<ViewListIcon />}
+                        label="Список"
+                        value="list"
+                        className="transition-all duration-200"
+                      />
+                    </Tabs>
+                    <Fab
+                      color="primary"
+                      aria-label="add"
+                      onClick={() => setIsTaskFormOpen(true)}
+                      className="ml-4 shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <AddIcon />
+                    </Fab>
+                  </Box>
+                )}
+              </Box>
+
+              <Zoom in={viewMode === "list"} mountOnEnter unmountOnExit>
+                <Box className={viewMode === "list" ? "block" : "hidden"}>
+                  <TaskList
+                    tasks={tasks.filter((task) => task.projectId === selectedProject)}
+                    showNotification={showNotification}
+                  />
+                </Box>
+              </Zoom>
+
+              <Zoom in={viewMode === "kanban"} mountOnEnter unmountOnExit>
+                <Box className={viewMode === "kanban" ? "block" : "hidden"}>
+                  <KanbanBoard
+                    tasks={tasks}
+                    setTasks={setTasks}
+                    showNotification={showNotification}
+                  />
+                </Box>
+              </Zoom>
+            </Paper>
+          </Fade>
+
+          <TaskForm
+            open={isTaskFormOpen}
+            onClose={handleCloseTaskForm}
+            onAddTask={handleAddTask}
+            selectedProject={selectedProject}
+            showNotification={showNotification}
+          />
+
+          {isMobile && (
+            <SpeedDial
+              ariaLabel="Меню задач"
+              className="fixed bottom-6 right-6"
+              icon={<SpeedDialIcon />}
+              FabProps={{
+                className: "bg-primary shadow-lg hover:shadow-xl transition-all duration-300",
+              }}
+            >
+              {actions.map((action) => (
+                <SpeedDialAction
+                  key={action.name}
+                  icon={action.icon}
+                  tooltipTitle={action.name}
+                  onClick={action.action}
+                  className="bg-white hover:bg-gray-100"
                 />
-            )}
-  
-            {/* Если проект выбран и нужно отображать задачи */}
-            {selectedProject && showTasks && (
-                <div>
-                    {/* Форма для добавления задачи */}
-                    <TaskForm
-                        onAddTask={handleAddTask} // Передаем функцию для добавления задачи
-                        selectedProject={selectedProject} // Передаем выбранный проект для добавления задачи
-                    />
-                    {/* Список задач, фильтруем по выбранному проекту */}
-                    <TaskList
-                        tasks={tasks.filter((task) => task.projectId === selectedProject)} // Фильтруем задачи по projectId
-                    />
-                    {/* Доска Kanban для отображения задач в формате Kanban */}
-                    <KanbanBoard tasks={tasks} setTasks={setTasks} />
-                </div>
-            )}
-        </main>
-    );
+              ))}
+            </SpeedDial>
+          )}
+        </Box>
+      )}
+    </Box>
+  );
 };
 
-export default MainContent; // Экспортируем компонент
+export default MainContent;

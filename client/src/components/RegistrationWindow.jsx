@@ -3,7 +3,16 @@ import React from "react";
 import "../styles/RegistrationANDloginWindow.css"; // Подключаем стили
 
 // Компонент окна регистрации
-const RegistrationWindow = ({ onClose }) => {
+const RegistrationWindow = ({ onClose, onRegisterSuccess }) => {
+    const handleRegisterSuccess = (data) => {
+        if (onRegisterSuccess) {
+            onRegisterSuccess(data);
+        }
+        if (onClose) {
+            onClose();
+        }
+    };
+
     return (
     <div className="overlay"> {/* Создаём оверлей для затемнения фона */}
       <div className="registration-window"> {/* Основной контейнер для окна регистрации */}
@@ -12,7 +21,7 @@ const RegistrationWindow = ({ onClose }) => {
          ✖
         </button>
         {/* Вставляем форму регистрации */}
-        <RegisterForm />
+        <RegisterForm onRegisterSuccess={handleRegisterSuccess} />
       </div>
     </div>
     );

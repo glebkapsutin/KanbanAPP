@@ -79,7 +79,7 @@ const KanbanBoard = ({ tasks, setTasks }) => {
       color: '#FF6B6B',
       icon: <RadioButtonUncheckedIcon />,
     },
-    In_Progress: {
+    To_Progress: {
       title: 'In Progress',
       color: '#4ECDC4',
       icon: <Assignment />,
@@ -93,13 +93,13 @@ const KanbanBoard = ({ tasks, setTasks }) => {
 
   const statusMap = {
     0: 'To_Do',
-    1: 'In_Progress',
+    1: 'To_Progress',
     2: 'Done',
   };
 
   const reverseStatusMap = {
     To_Do: 0,
-    In_Progress: 1,
+    To_Progress: 1,
     Done: 2,
   };
 
@@ -182,7 +182,7 @@ const KanbanBoard = ({ tasks, setTasks }) => {
                               <CardContent>
                                 <Box className="flex justify-between items-start mb-2">
                                   <Typography variant="h6" className="font-medium">
-                                    {task.name}
+                                    {task.taskName}
                                   </Typography>
                                   <IconButton size="small">
                                     <MoreVert />
@@ -196,23 +196,34 @@ const KanbanBoard = ({ tasks, setTasks }) => {
                                   {task.description}
                                 </Typography>
                                 <Box className="flex items-center justify-between">
-                                  <Chip
-                                    icon={<PersonIcon />}
-                                    label={task.userName || 'Не назначен'}
-                                    size="small"
-                                    variant="outlined"
-                                  />
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                    className="flex items-center"
-                                  >
-                                    <AccessTimeIcon
-                                      fontSize="small"
-                                      className="mr-1"
+                                  <Box className="flex items-center space-x-2">
+                                    <Chip
+                                      icon={<PersonIcon />}
+                                      label={task.user?.name || 'Не назначен'}
+                                      size="small"
+                                      variant="outlined"
                                     />
-                                    {new Date(task.createdAt).toLocaleDateString()}
-                                  </Typography>
+                                    {task.priority !== null && (
+                                      <Chip
+                                        label={task.priority === 0 ? 'Низкий' : task.priority === 1 ? 'Средний' : 'Высокий'}
+                                        size="small"
+                                        color={task.priority === 0 ? 'success' : task.priority === 1 ? 'warning' : 'error'}
+                                      />
+                                    )}
+                                  </Box>
+                                  {task.deadline && (
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                      className="flex items-center"
+                                    >
+                                      <AccessTimeIcon
+                                        fontSize="small"
+                                        className="mr-1"
+                                      />
+                                      {new Date(task.deadline).toLocaleDateString('ru-RU')}
+                                    </Typography>
+                                  )}
                                 </Box>
                               </CardContent>
                             </TaskCard>
@@ -227,83 +238,7 @@ const KanbanBoard = ({ tasks, setTasks }) => {
           ))}
         </Box>
 
-        <Dialog
-          open={openDialog}
-          onClose={handleCloseDialog}
-          maxWidth="sm"
-          fullWidth
-        >
-          {selectedTask && (
-            <>
-              <DialogTitle className="flex justify-between items-center">
-                <Typography variant="h5" className="font-semibold">
-                  {selectedTask.name}
-                </Typography>
-                <Box className="flex space-x-2">
-                  <IconButton size="small">
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton size="small">
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              </DialogTitle>
-              <DialogContent>
-                <Box className="space-y-4 mt-4">
-                  <TextField
-                    fullWidth
-                    label="Название"
-                    value={selectedTask.name}
-                    variant="outlined"
-                    disabled
-                  />
-                  <TextField
-                    fullWidth
-                    label="Описание"
-                    value={selectedTask.description}
-                    variant="outlined"
-                    multiline
-                    rows={4}
-                    disabled
-                  />
-                  <TextField
-                    select
-                    fullWidth
-                    label="Статус"
-                    value={statusMap[selectedTask.status]}
-                    variant="outlined"
-                    disabled
-                  >
-                    {Object.entries(columns).map(([key, { title }]) => (
-                      <MenuItem key={key} value={key}>
-                        {title}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  <TextField
-                    fullWidth
-                    label="Исполнитель"
-                    value={selectedTask.userName || 'Не назначен'}
-                    variant="outlined"
-                    disabled
-                  />
-                </Box>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleCloseDialog}>Закрыть</Button>
-              </DialogActions>
-            </>
-          )}
-        </Dialog>
-
-        <Fab
-          color="primary"
-          aria-label="add"
-          className="fixed bottom-6 right-6"
-          onClick={() => {/* Обработчик добавления новой задачи */}}
-        >
-          <AddIcon />
-        </Fab>
+       
       </StyledPaper>
     </DragDropContext>
   );

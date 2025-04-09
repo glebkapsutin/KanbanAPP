@@ -41,7 +41,15 @@ builder.Services.AddCors(options =>
 
 
 // Настройка Identity для работы с пользователями и ролями
-builder.Services.AddIdentity<UserItem, IdentityRole<int>>() // Добавляем Identity
+builder.Services.AddIdentity<UserItem, IdentityRole<int>>(options => {
+    // Настройки пароля
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 1;
+    options.Password.RequiredUniqueChars = 0;
+}) // Добавляем Identity
     .AddEntityFrameworkStores<KanbanAppDbContext>() // Указываем, что храним пользователей и роли в нашей БД через KanbanAppDbContext
     .AddDefaultTokenProviders(); // Поддержка токенов для сброса пароля и других функций
 

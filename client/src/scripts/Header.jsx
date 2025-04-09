@@ -64,7 +64,7 @@ const Header = ({ user, OnTasksClick, OnProjectsClick }) => {
           <img
             src="/assets/icon.png"
             alt="Логотип"
-            className="h-8 w-8 object-contain"
+            className="h-20 w-20 object-contain"
           />
           <Typography variant="h4" className="text-white font-bold">
             Kanban

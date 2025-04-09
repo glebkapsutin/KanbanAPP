@@ -25,7 +25,7 @@ namespace KanbanApp.Core.Models
 
         public DateTime? Deadline { get; set; }
 
-        
+        public Task_Priority? Priority { get; set; }
 
     }
 }

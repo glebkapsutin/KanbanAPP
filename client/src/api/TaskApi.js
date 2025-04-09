@@ -29,7 +29,8 @@ export const updateStatusTask = async (taskId, newStatus) => {
       throw new Error('Ошибка при обновлении статуса задачи');
     }
 
-    return await response.json(); // Возвращаем обновлённую задачу
+    const result = await response.json();
+    return result;
   } catch (error) {
     console.error('Ошибка при обновлении статуса задачи:', error);
     return null;
@@ -39,21 +40,36 @@ export const updateStatusTask = async (taskId, newStatus) => {
 // TaskApi.js
 export const addTask = async (newTask, tasks, setTasks) => {
   try {
-      const response = await fetch(`${BaseUrl}/Task`, {
-          method: 'POST',
-          headers: {
-              "Content-Type": "application/json"
-          },
-          body: JSON.stringify(newTask)
-      });
-      if (response.ok) {
-          const addedTask = await response.json();
-          setTasks([...tasks, addedTask]); // Добавляем новую задачу в состояние
-      } else {
-          console.error("Ошибка при добавлении задачи:", await response.text());
-      }
+    const taskData = {
+      taskName: newTask.taskName,
+      description: newTask.description,
+      status: newTask.status,
+      priority: newTask.priority,
+      deadline: newTask.deadline,
+      projectId: newTask.projectId,
+      userId: newTask.userId,
+      createdTask: new Date().toISOString()
+    };
+
+    const response = await fetch(`${BaseUrl}/Task`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(taskData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.title || 'Ошибка при добавлении задачи');
+    }
+
+    const addedTask = await response.json();
+    setTasks([...tasks, addedTask]);
+    return addedTask;
   } catch (error) {
-      console.error("Ошибка сети:", error);
+    console.error('Ошибка при добавлении задачи:', error);
+    throw error;
   }
 };
 export const deleteTask = async(tasks,setTasks) =>{

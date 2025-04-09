@@ -1,70 +1,256 @@
-import React, { useState } from 'react'; // Импортируем React и хук useState
-import '../styles/Task.css'; // Импортируем стили для компонента
-import { Button, Input, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Box,
+  Typography,
+  IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid,
+  InputAdornment,
+  Tooltip,
+  useTheme,
+} from '@mui/material';
+import {
+  Close as CloseIcon,
+  Save as SaveIcon,
+  Assignment as AssignmentIcon,
+  CalendarToday as CalendarIcon,
+  Person as PersonIcon,
+  PriorityHigh as PriorityIcon,
+} from '@mui/icons-material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { ru } from 'date-fns/locale';
 
-const TaskForm = ({ onAddTask, selectedProject }) => {
-  // useState - это хук, который используется для создания состояния компонента.
-  // Изначально состояние для TaskName (название задачи) и Description (описание задачи) пустое.
-  const [TaskName, SetTaskName] = useState(''); // Состояние для названия задачи
-  const [Description, SetDescription] = useState(''); // Состояние для описания задачи
+const TaskForm = ({ open, onClose, onAddTask, selectedProject }) => {
+  const theme = useTheme();
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    status: 'To_Do',
+    priority: 'Low',
+    dueDate: null,
+    assignee: 'Текущий пользователь',
+  });
 
-  // Функция для обработки отправки формы
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleDateChange = (date) => {
+    setFormData((prev) => ({
+      ...prev,
+      dueDate: date,
+    }));
+  };
+
   const handleSubmit = (e) => {
-    e.preventDefault(); // preventDefault предотвращает перезагрузку страницы при отправке формы
-    console.log('Текущий выбранный проект:', selectedProject); // Выводим в консоль выбранный проект
-    console.log("Отправляем задачу:", { TaskName, Description, projectId: selectedProject }); // Выводим данные задачи
+    e.preventDefault();
+    const taskData = {
+      taskName: formData.name,
+      description: formData.description,
+      status: formData.status === 'To_Do' ? 0 : formData.status === 'To_Progress' ? 1 : 2,
+      priority: formData.priority === 'Low' ? 0 : formData.priority === 'Medium' ? 1 : 2,
+      deadline: formData.dueDate,
+      projectId: selectedProject,
+      userId: 1 // Устанавливаем пользователя по умолчанию
+    };
+    onAddTask(taskData);
+    setFormData({
+      name: '',
+      description: '',
+      status: 'To_Do',
+      priority: 'Low',
+      dueDate: null,
+      assignee: 'Текущий пользователь', // Устанавливаем имя пользователя по умолчанию
+    });
+    onClose();
+  };
 
-    // Если проект не выбран (selectedProject = null или undefined), выводим предупреждение
-    if (!selectedProject) {
-      alert('Пожалуйста, выберите проект перед добавлением задачи!');
-      return; // Выход из функции, если проект не выбран
-    }
-
-    // Если оба поля (название и описание задачи) заполнены, отправляем задачу
-    if (TaskName && Description) {
-      onAddTask({
-        TaskName, // Название задачи
-        Description, // Описание задачи
-        projectId: selectedProject, // ID выбранного проекта
-        status: 0, // Статус задачи по умолчанию (например, 0 - не начата)
-      });
-
-      // После отправки задачи очищаем поля формы
-      SetTaskName(''); // Очищаем поле для названия задачи
-      SetDescription(''); // Очищаем поле для описания задачи
-    } else {
-      console.error("Ошибка: Название задачи и описание не могут быть пустыми!"); // Ошибка, если поля пустые
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high':
+        return 'error';
+      case 'medium':
+        return 'warning';
+      case 'low':
+        return 'success';
+      default:
+        return 'default';
     }
   };
 
   return (
-    
-      
-        <TextField className="mt-4" onSubmit={handleSubmit}> 
-          {/* Поле для ввода названия задачи */}
-          <Input
-            className="text-white" // Стили для поля ввода
-            type="text" // Тип поля ввода - текст
-            placeholder="Заголовок задачи" // Подсказка, что нужно ввести
-            value={TaskName} // Значение поля - это состояние TaskName
-            onChange={(e) => SetTaskName(e.target.value)} // При изменении значения обновляем состояние TaskName
-          />
-          {/* Поле для ввода описания задачи */}
-          <Input
-            className="text-white" // Стили для поля ввода
-            type="text" // Тип поля ввода - текст
-            placeholder="Описание задачи" // Подсказка для пользователя
-            value={Description} // Значение поля - это состояние Description
-            onChange={(e) => SetDescription(e.target.value)} // При изменении значения обновляем состояние Description
-          />
-          {/* Кнопка отправки формы */}
-          <Button className="mt-4 text-white shadow-md ">
-            Добавить задачу {/* Текст на кнопке */}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      className="backdrop-blur-sm"
+      PaperProps={{
+        className: "rounded-xl backdrop-blur-sm bg-opacity-80",
+      }}
+    >
+      <DialogTitle className="flex justify-between items-center">
+        <Box className="flex items-center space-x-2">
+          <AssignmentIcon className="text-primary" />
+          <Typography variant="h5" className="font-bold text-primary">
+            Новая задача
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent className="space-y-4">
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Название задачи"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                variant="outlined"
+                className="rounded-lg"
+                InputProps={{
+                  className: "rounded-lg",
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AssignmentIcon className="text-gray-400" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Описание задачи"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                multiline
+                rows={4}
+                variant="outlined"
+                className="rounded-lg"
+                InputProps={{
+                  className: "rounded-lg",
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Статус</InputLabel>
+                <Select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  label="Статус"
+                >
+                  <MenuItem value="To_Do">К выполнению</MenuItem>
+                  <MenuItem value="To_Progress">В процессе</MenuItem>
+                  <MenuItem value="Done">Выполнено</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Приоритет</InputLabel>
+                <Select
+                  name="priority"
+                  value={formData.priority}
+                  onChange={handleChange}
+                  label="Приоритет"
+                >
+                  <MenuItem value="Low">Низкий</MenuItem>
+                  <MenuItem value="Medium">Средний</MenuItem>
+                  <MenuItem value="High">Высокий</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+                <DatePicker
+                  label="Срок выполнения"
+                  value={formData.dueDate}
+                  onChange={handleDateChange}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      variant="outlined"
+                      className="rounded-lg"
+                      InputProps={{
+                        ...params.InputProps,
+                        className: "rounded-lg",
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CalendarIcon className="text-gray-400" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Исполнитель"
+                name="assignee"
+                value={formData.assignee}
+                onChange={handleChange}
+                variant="outlined"
+                className="rounded-lg"
+                InputProps={{
+                  className: "rounded-lg",
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon className="text-gray-400" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions className="p-4">
+          <Button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            Отмена
           </Button>
-        </TextField>
-     
-    
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
+            className="rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            Создать задачу
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
 
-export default TaskForm; // Экспортируем компонент для использования в других частях приложения
+export default TaskForm;

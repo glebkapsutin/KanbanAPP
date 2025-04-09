@@ -1,84 +1,55 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
 import {
+  Box,
   TextField,
   Button,
-  Paper,
   Typography,
-  Box,
-  Grid,
-  Alert,
-  CircularProgress,
+  Paper,
   InputAdornment,
   IconButton,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+  useTheme,
+} from '@mui/material';
+import {
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Lock as LockIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  CalendarToday as CalendarIcon,
+} from '@mui/icons-material';
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  maxWidth: 600,
-  margin: '0 auto',
-  marginTop: theme.spacing(8),
-  background: 'rgba(255, 255, 255, 0.9)',
-  backdropFilter: 'blur(10px)',
-  borderRadius: '16px',
-  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-}));
-
-function RegisterForm() {
-  const navigate = useNavigate();
+const RegisterForm = ({ onRegisterSuccess }) => {
+  const theme = useTheme();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
     name: '',
     surname: '',
-    age: 0,
+    email: '',
+    password: '',
+    age: '',
     description: '',
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const validateForm = () => {
-    if (!formData.email || !formData.password || !formData.name || !formData.surname) {
-      setError('Пожалуйста, заполните все обязательные поля');
-      return false;
-    }
-    if (formData.password.length < 6) {
-      setError('Пароль должен содержать минимум 6 символов');
-      return false;
-    }
-    if (formData.age < 0) {
-      setError('Возраст не может быть отрицательным');
-      return false;
-    }
-    return true;
-  };
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
-    setError('');
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
-
     try {
+      // Проверяем обязательные поля
+      if (!formData.name || !formData.surname || !formData.email || !formData.password || !formData.age) {
+        setError('Пожалуйста, заполните все обязательные поля');
+        return;
+      }
+
+      // Преобразуем возраст в число
       const requestData = {
         ...formData,
         age: parseInt(formData.age, 10),
@@ -92,136 +63,262 @@ function RegisterForm() {
         body: JSON.stringify(requestData),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Ошибка регистрации');
+      }
+
       const data = await response.json();
-      
-      if (response.ok) {
-        localStorage.setItem('user', JSON.stringify(data));
-        navigate('/');
-      } else {
-        setError(data.message || data.Message || 'Ошибка при регистрации');
+      if (typeof onRegisterSuccess === 'function') {
+        onRegisterSuccess(data);
       }
     } catch (error) {
-      setError('Ошибка при подключении к серверу');
-    } finally {
-      setLoading(false);
+      console.error('Registration error:', error);
+      setError(error.message || 'Ошибка при регистрации. Проверьте введенные данные.');
     }
   };
 
   return (
-    <StyledPaper elevation={3}>
-      <Typography component="h1" variant="h4" className="mb-6 font-bold text-gray-800">
-        Регистрация
-      </Typography>
-      
-      {error && (
-        <Alert severity="error" className="w-full mb-4">
-          {error}
-        </Alert>
-      )}
+    <Box className="min-h-screen flex items-center justify-center p-4">
+      <Paper
+        className="p-8 rounded-xl backdrop-blur-sm bg-opacity-80 w-full max-w-md"
+        elevation={3}
+      >
+        <Typography
+          variant="h4"
+          className="text-center mb-6 font-bold"
+          sx={{
+            color: theme.palette.mode === 'dark' ? 'white' : 'primary.main',
+          }}
+        >
+          Регистрация
+        </Typography>
 
-      <Box component="form" onSubmit={handleSubmit} className="w-full">
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              required
-              fullWidth
-              label="Имя"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              required
-              fullWidth
-              label="Фамилия"
-              name="surname"
-              value={formData.surname}
-              onChange={handleChange}
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              required
-              fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              variant="outlined"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              required
-              fullWidth
-              label="Пароль"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={handleChange}
-              variant="outlined"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              required
-              fullWidth
-              label="Возраст"
-              name="age"
-              type="number"
-              value={formData.age}
-              onChange={handleChange}
-              variant="outlined"
-              InputProps={{
-                inputProps: { min: 0 }
-              }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Описание"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              variant="outlined"
-              multiline
-              rows={3}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              size="large"
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <TextField
+            fullWidth
+            label="Имя"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            variant="outlined"
+            className="rounded-lg"
+            InputProps={{
+              className: "rounded-lg",
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PersonIcon className="text-gray-400" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiInputLabel-root': {
+                color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+            }}
+          />
+
+          <TextField
+            fullWidth
+            label="Фамилия"
+            name="surname"
+            value={formData.surname}
+            onChange={handleChange}
+            required
+            variant="outlined"
+            className="rounded-lg"
+            InputProps={{
+              className: "rounded-lg",
+              startAdornment: (
+                <InputAdornment position="start">
+                  <PersonIcon className="text-gray-400" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiInputLabel-root': {
+                color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+            }}
+          />
+
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            variant="outlined"
+            className="rounded-lg"
+            InputProps={{
+              className: "rounded-lg",
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon className="text-gray-400" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiInputLabel-root': {
+                color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+            }}
+          />
+
+          <TextField
+            fullWidth
+            label="Пароль"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            value={formData.password}
+            onChange={handleChange}
+            required
+            variant="outlined"
+            className="rounded-lg"
+            InputProps={{
+              className: "rounded-lg",
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon className="text-gray-400" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiInputLabel-root': {
+                color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+            }}
+          />
+
+          <TextField
+            fullWidth
+            label="Возраст"
+            name="age"
+            type="number"
+            value={formData.age}
+            onChange={handleChange}
+            required
+            variant="outlined"
+            className="rounded-lg"
+            InputProps={{
+              className: "rounded-lg",
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CalendarIcon className="text-gray-400" />
+                </InputAdornment>
+              ),
+              inputProps: { min: 0 }
+            }}
+            sx={{
+              '& .MuiInputLabel-root': {
+                color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+            }}
+          />
+
+          <TextField
+            fullWidth
+            label="Описание"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            multiline
+            rows={4}
+            variant="outlined"
+            className="rounded-lg"
+            InputProps={{
+              className: "rounded-lg",
+            }}
+            sx={{
+              '& .MuiInputLabel-root': {
+                color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                },
+                '&:hover fieldset': {
+                  borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+            }}
+          />
+
+          {error && (
+            <Typography
+              variant="body2"
+              className="text-red-500 text-center"
             >
-              {loading ? <CircularProgress size={24} /> : 'Зарегистрироваться'}
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-    </StyledPaper>
+              {error}
+            </Typography>
+          )}
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            className="rounded-lg py-2 shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            Зарегистрироваться
+          </Button>
+        </form>
+      </Paper>
+    </Box>
   );
-}
+};
 
 export default RegisterForm;

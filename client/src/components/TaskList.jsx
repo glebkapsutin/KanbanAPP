@@ -1,158 +1,204 @@
 import React from 'react';
 import {
-  Typography,
   List,
   ListItem,
   ListItemText,
-  Paper,
-  Chip,
+  ListItemIcon,
+  ListItemButton,
+  Typography,
   Box,
+  Chip,
   IconButton,
-  Divider,
-  Tooltip,
-  Fab,
+  Menu,
+  MenuItem,
+  Fade,
+  Zoom,
 } from '@mui/material';
 import {
-  Add as AddIcon,
-  AccessTime as AccessTimeIcon,
-  Person as PersonIcon,
+  MoreVert as MoreVertIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  CheckCircle as CheckCircleIcon,
+  RadioButtonUnchecked as RadioButtonUncheckedIcon,
+  AccessTime as AccessTimeIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  background: 'rgba(255, 255, 255, 0.9)',
-  backdropFilter: 'blur(10px)',
-  borderRadius: '16px',
-  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-}));
+const TaskList = ({ tasks, onEditTask, onDeleteTask, onStatusChange }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [selectedTask, setSelectedTask] = React.useState(null);
 
-const StyledListItem = styled(ListItem)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  borderRadius: '8px',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 4px 20px 0 rgba(31, 38, 135, 0.2)',
-  },
-}));
+  const handleMenuOpen = (event, task) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedTask(task);
+  };
 
-// Компонент TaskList, который принимает пропс tasks (список задач)
-const TaskList = ({ tasks }) => {
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedTask(null);
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 2:
+        return <CheckCircleIcon className="text-green-500" />;
+      case 1:
+        return <AccessTimeIcon className="text-yellow-500" />;
+      default:
+        return <RadioButtonUncheckedIcon className="text-gray-400" />;
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
-      case 0:
-        return '#FF6B6B'; // To Do
-      case 1:
-        return '#4ECDC4'; // In Progress
       case 2:
-        return '#45B7D1'; // Done
+        return 'success';
+      case 1:
+        return 'warning';
       default:
-        return '#9E9E9E';
+        return 'default';
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 0:
-        return 'To Do';
-      case 1:
-        return 'In Progress';
       case 2:
-        return 'Done';
+        return 'Выполнено';
+      case 1:
+        return 'В процессе';
       default:
-        return 'Unknown';
+        return 'К выполнению';
     }
   };
 
   return (
-    <StyledPaper>
-      <Box className="flex justify-between items-center mb-6">
-        <Typography variant="h4" className="font-bold text-gray-800">
-          Список задач
+    <Box className="space-y-4">
+      <Typography variant="h5" className="mb-4 font-bold text-primary">
+        Список задач
+      </Typography>
+      {tasks.length === 0 ? (
+        <Typography variant="body1" className="text-gray-500 text-center py-4">
+          Нет задач для отображения
         </Typography>
-        <Fab
-          color="primary"
-          size="small"
-          aria-label="add"
-          onClick={() => {/* Обработчик добавления новой задачи */}}
-        >
-          <AddIcon />
-        </Fab>
-      </Box>
-
-      {tasks && tasks.length > 0 ? (
-        <List className="space-y-4">
-          {tasks.map((task, index) => (
-            <React.Fragment key={task.id}>
-              <StyledListItem className="bg-gray-50">
-                <Box className="w-full">
-                  <Box className="flex justify-between items-start mb-2">
-                    <Typography variant="h6" className="font-semibold text-gray-800">
-                      {task.name}
-                    </Typography>
-                    <Box className="flex items-center space-x-2">
-                      <Chip
-                        label={getStatusText(task.status)}
-                        size="small"
-                        style={{ backgroundColor: getStatusColor(task.status), color: 'white' }}
-                      />
-                      <Tooltip title="Редактировать">
-                        <IconButton size="small">
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Удалить">
-                        <IconButton size="small">
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </Box>
-                  <Typography variant="body2" className="text-gray-600 mb-3">
-                    {task.description}
-                  </Typography>
-                  <Box className="flex items-center justify-between">
+      ) : (
+        <List className="space-y-2">
+          {tasks.map((task) => (
+            <Zoom in={true} timeout={300} key={task.id}>
+              <ListItem
+                disablePadding
+                className="mb-2"
+              >
+                <ListItemButton
+                  className="rounded-lg transition-all duration-300 backdrop-blur-sm bg-opacity-80 hover:bg-gray-100"
+                >
+                  <ListItemIcon>
+                    {getStatusIcon(task.status)}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Box className="flex items-center justify-between">
+                        <Typography
+                          variant="subtitle1"
+                          className="font-medium text-gray-800"
+                        >
+                          {task.taskName}
+                        </Typography>
+                        {task.deadline && (
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            className="flex items-center ml-2"
+                          >
+                            <AccessTimeIcon
+                              fontSize="small"
+                              className="mr-1"
+                            />
+                            {new Date(task.deadline).toLocaleDateString('ru-RU')}
+                          </Typography>
+                        )}
+                      </Box>
+                    }
+                    secondary={
+                      <Box>
+                        <Typography
+                          variant="body2"
+                          className="text-gray-600"
+                        >
+                          {task.description}
+                        </Typography>
+                        <Box className="flex items-center mt-2 space-x-2">
+                          <Chip
+                            icon={<PersonIcon />}
+                            label={task.user?.name || 'Не назначен'}
+                            size="small"
+                            variant="outlined"
+                          />
+                          {task.priority !== null && (
+                            <Chip
+                              label={task.priority === 0 ? 'Низкий' : task.priority === 1 ? 'Средний' : task.priority === 2 ? 'Высокий' : ''}
+                              size="small"
+                              color={task.priority === 0 ? 'success' : task.priority === 1 ? 'warning' : task.priority === 2 ? 'error' : 'default'}
+                            />
+                          )}
+                        </Box>
+                      </Box>
+                    }
+                  />
+                  <Box className="flex items-center space-x-2">
                     <Chip
-                      icon={<PersonIcon />}
-                      label={task.userName || 'Не назначен'}
+                      icon={getStatusIcon(task.status)}
+                      label={getStatusText(task.status)}
+                      color={getStatusColor(task.status)}
                       size="small"
-                      variant="outlined"
+                      className="ml-2"
                     />
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      className="flex items-center"
+                    <IconButton
+                      onClick={(e) => handleMenuOpen(e, task)}
+                      className="text-gray-500 hover:text-gray-700"
                     >
-                      <AccessTimeIcon fontSize="small" className="mr-1" />
-                      {new Date(task.createdAt).toLocaleDateString()}
-                    </Typography>
+                      <MoreVertIcon />
+                    </IconButton>
                   </Box>
-                </Box>
-              </StyledListItem>
-              {index < tasks.length - 1 && <Divider />}
-            </React.Fragment>
+                </ListItemButton>
+              </ListItem>
+            </Zoom>
           ))}
         </List>
-      ) : (
-        <Box className="text-center py-8">
-          <Typography variant="body1" className="text-gray-500 mb-4">
-            Задач пока нет
-          </Typography>
-          <Fab
-            color="primary"
-            variant="extended"
-            onClick={() => {/* Обработчик добавления новой задачи */}}
-          >
-            <AddIcon className="mr-2" />
-            Добавить задачу
-          </Fab>
-        </Box>
       )}
-    </StyledPaper>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        TransitionComponent={Fade}
+        className="backdrop-blur-sm"
+        PaperProps={{
+          className: "rounded-xl backdrop-blur-sm bg-opacity-80",
+        }}
+      >
+        <MenuItem
+          onClick={() => {
+            onEditTask(selectedTask);
+            handleMenuClose();
+          }}
+          className="flex items-center space-x-2"
+        >
+          <EditIcon className="text-primary" />
+          <Typography>Редактировать</Typography>
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            onDeleteTask(selectedTask);
+            handleMenuClose();
+          }}
+          className="flex items-center space-x-2 text-red-500"
+        >
+          <DeleteIcon />
+          <Typography>Удалить</Typography>
+        </MenuItem>
+      </Menu>
+    </Box>
   );
 };
 
-export default TaskList; // Экспортируем компонент
+export default TaskList;
